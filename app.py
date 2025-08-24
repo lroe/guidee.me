@@ -1419,7 +1419,7 @@ def chat():
 
 [YOUR TASK]
 The student provided an incorrect answer to the following multiple-choice question: "{question_text}"
-Your task is to respond in an encouraging way (e.g., "Not quite," or "That's a good try, but..."). Then, **re-ask the exact same question** to give them another chance. Do not give hints yet.
+Your task is to respond in an encouraging way (e.g., "Not quite," or "That's a good try, but..."). Then, **re-ask the exact same question** to give them another chance. Give some hints.
 """
                                 model_response_text = get_tutor_response(simple_prompt)
                                 response_data['tutor_text'] = model_response_text
@@ -1438,9 +1438,23 @@ Your task is to respond in an encouraging way (e.g., "Not quite," or "That's a g
                             # --- END OF FIX ---
 
                         elif step_type == 'QUESTION_SA':
-                            keywords = [kw.lower() for kw in current_step.get('keywords', [])]
-                            answer_lower = user_input.lower()
-                            is_correct = any(kw in answer_lower for kw in keywords)
+                            analysis_prompt = SA_ANALYSIS_PROMPT.format(
+                                question=current_step.get('question'),
+                                keywords=current_step.get('keywords'),
+                                answer=user_input
+                            )
+                            
+                            # 2. Get the AI's evaluation
+                            evaluation_response_text = get_tutor_response(analysis_prompt)
+                            try:
+                                # 3. Parse the JSON response from the AI
+                                evaluation_data = json.loads(evaluation_response_text.strip().replace("```json", "").replace("```", "").strip())
+                                is_correct = evaluation_data.get('is_correct', False)
+                                feedback_from_ai = evaluation_data.get('feedback', "Let's try that again.")
+                            except (json.JSONDecodeError, AttributeError):
+                                # Fallback if the AI doesn't return valid JSON
+                                is_correct = False
+                                feedback_from_ai = "I had a little trouble checking your answer. Let's try rephrasing."
 
                             if is_correct:
                                 if enrollment:
@@ -1471,16 +1485,8 @@ Your task is to respond in an encouraging way (e.g., "Not quite," or "That's a g
                             
                             # --- THIS IS THE FIX FOR INCORRECT SA ANSWERS ---
                             else:
-                                question_text = current_step.get('question', '')
-                                simple_prompt = f"""[TUTOR PERSONA]
-{persona}
-
-[YOUR TASK]
-The student provided an incorrect answer to the short-answer question: "{question_text}"
-The expected concepts were: {keywords}.
-Your task is to respond in an encouraging way. Then, **re-ask the exact same question** and provide a gentle hint based on the expected concepts to guide them.
-"""
-                                model_response_text = get_tutor_response(simple_prompt)
+                                
+                                model_response_text = feedback_from_ai
                                 response_data['question'] = current_step
                                 next_step_index = step_index  # Stay on the same step
                             # --- END OF FIX ---
