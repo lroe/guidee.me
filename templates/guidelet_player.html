@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
+    <title>{{ current_lesson.title }} | {{ guidelet.title }}</title>
+    
+    <!-- Fonts and Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+
+    <!-- Kindle/Goodreads Inspired CSS -->
+    <style>
+        :root {
+            --sepia-light: #f7f2e8;
+            --sepia-medium: #e8dfc8;
+            --sepia-dark: #d4c9b1;
+            --sepia-darker: #a89a7d;
+            --accent-gold: #c9a66b;
+            --text-dark: #3a352d;
+            --text-light: #7a6e5d;
+            --border-color: #d1c6ad;
+            --shadow: 0 2px 8px rgba(58, 53, 45, 0.08);
+            --radius: 4px;
+            --serif: 'Merriweather', serif;
+            --sans: 'Source Sans 3', sans-serif;
+            --brand-blue-dark: #626C77;
+            --border-color-light: #E5E7EB; 
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        .media-message img,
+        .media-message video {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            display: block;
+        }
+        .media-message img {
+            cursor: pointer;
+        }
+        
+        /* --- MAIN LAYOUT FIX (START) --- */
+        body {
+    font-family: var(--serif);
+    background-color: var(--sepia-light);
+    color: var(--text-dark);
+    line-height: 1.6;
+    height: 100dvh;  /* NEW: Use dvh for keyboard-aware height */
+    overflow-y: auto;  /* NEW: Allow scroll if needed (instead of hidden) */
+    display: flex;
+    flex-direction: column;
+}
+
+        .guidelet-player-container {
+    display: flex;
+    width: 100%;
+    flex-grow: 1;
+    min-height: 0;
+    height: 100dvh;  /* NEW: dvh for full dynamic height */
+}
+
+        /* --- Sidebar Styles (Unchanged) --- */
+        .sidebar {
+            background-color: var(--sepia-medium);
+            border-right: 1px solid var(--border-color);
+            width: 320px;
+            height: 100%;
+            padding: 25px 20px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            position: relative;
+            z-index: 10;
+            box-shadow: 2px 0 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease-in-out;
+            flex-shrink: 0;
+        }
+        #toggle-sidebar-btn, #sidebar-overlay { display: none; }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                width: 280px; position: fixed; transform: translateX(-100%);
+                top: 0; bottom: 0; left: 0; z-index: 1000;
+            }
+            .sidebar.show { transform: translateX(0); }
+            #toggle-sidebar-btn, #sidebar-overlay { display: block; }
+            #sidebar-overlay {
+                position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.3); z-index: 999;
+                opacity: 0; pointer-events: none; transition: opacity 0.3s ease-in-out;
+            }
+            #sidebar-overlay.show { opacity: 1; pointer-events: auto; }
+        }
+
+        /* ... other unchanged sidebar styles (bookmark, title, nav, map, etc.) ... */
+        .bookmark{position:absolute;top:0;right:30px;height:40px;width:30px;background-color:var(--accent-gold);clip-path:polygon(0 0,100% 0,100% 100%,50% 85%,0 100%);z-index:2}.book-title{font-size:1.4rem;margin-bottom:30px;padding-bottom:15px;border-bottom:1px solid var(--border-color);color:var(--text-dark);font-weight:700;font-family:var(--sans)}.chapter-nav-list{list-style:none;padding:0;margin:0}.chapter-nav-item{margin-bottom:8px}.chapter-nav-item a{display:block;padding:12px 15px;background-color:transparent;border-radius:var(--radius);color:var(--text-light);transition:all .3s ease;font-size:.95rem;position:relative;font-family:var(--sans)}.chapter-nav-item a:hover{background-color:rgba(201,166,107,.1);color:var(--text-dark)}.chapter-nav-item.active a{background-color:rgba(201,166,107,.15);color:var(--text-dark);font-weight:600}.chapter-nav-item.active a::before{content:'';position:absolute;left:0;top:0;height:100%;width:3px;background-color:var(--accent-gold)}.adventure-map-container{margin-top:25px;padding-top:20px;border-top:1px solid var(--border-color)}.adventure-map-title{font-family:var(--sans);font-size:.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:15px;color:var(--text-light);font-weight:600}.adventure-map{list-style:none;padding:0;margin:0;position:relative}.adventure-map::before{content:'';position:absolute;left:18px;top:0;bottom:0;width:1px;background-color:var(--border-color)}.waypoint-item{position:relative;padding:12px 0 12px 45px;transition:all .3s ease}.waypoint-icon{position:absolute;left:0;top:50%;transform:translateY(-50%);width:36px;height:36px;background-color:var(--sepia-light);border:1px solid var(--border-color);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;z-index:2;transition:all .3s ease}.waypoint-item.undiscovered{color:var(--text-light);opacity:.8}.waypoint-item.conquered .waypoint-icon{background-color:var(--accent-gold);border-color:var(--accent-gold);color:#fff}.waypoint-item.active .waypoint-icon{background-color:var(--text-dark);border-color:var(--text-dark);color:var(--sepia-light);box-shadow:0 0 0 3px rgba(58,53,45,.2)}.waypoint-label{font-size:.95rem}.sidebar-footer{margin-top:auto;padding-top:20px;border-top:1px solid var(--border-color);display:flex;flex-direction:column;gap:10px}.btn{display:inline-block;padding:10px 20px;background-color:var(--sepia-dark);color:var(--text-dark);border:none;border-radius:var(--radius);font-family:var(--sans);font-weight:600;text-decoration:none;cursor:pointer;transition:all .2s ease;text-align:center}.btn:hover{background-color:var(--accent-gold);color:#fff}.btn-back{background-color:transparent;border:1px solid var(--border-color)}
+        
+        /* --- CHAT AREA LAYOUT FIX (START) --- */
+        .main-chat-area {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--sepia-light);
+    height: 100dvh;  /* NEW: dvh */
+    position: relative;
+    min-width: 0;
+    overflow-y: auto;  /* NEW: Allow scroll if keyboard clips */
+}
+
+        .chat-header {
+            display: flex; align-items: center; padding: 15px 25px;
+            background-color: var(--sepia-medium);
+            border-bottom: 1px solid var(--border-color);
+            position: relative; z-index: 5;
+            flex-shrink: 0; /* Prevent header from shrinking */
+        }
+        
+        .chat-box {
+            flex-grow: 1; /* This is key: the chat box takes all remaining vertical space */
+            overflow-y: auto; /* The chat box itself will scroll for long conversations */
+            padding: 30px; position: relative;
+            display: flex; /* Use flexbox to manage children, especially the game */
+            flex-direction: column; /* Stack messages vertically */
+            gap: 25px;
+        }
+        
+        
+        .bottom-controls-wrapper {
+            background-color: var(--sepia-medium); padding: 20px;
+            border-top: 1px solid var(--border-color);
+            position: relative; z-index: 5;
+            flex-shrink: 0; /* Prevent the footer from shrinking */
+        }
+        /* --- CHAT AREA LAYOUT FIX (END) --- */
+        @media (max-width: 480px) {
+    .guidelet-player-container,
+    .main-chat-area,
+    .chat-box {
+        height: 100dvh;  /* NEW: Override with dvh */
+        min-height: 100dvh;
+    }
+
+    .chat-box {
+        padding: 15px;
+        overflow-y: auto;  /* Ensure scrollable */
+    }
+
+    .bottom-controls-wrapper {
+        position: sticky;  /* NEW: Stick to bottom */
+        bottom: 0;
+        z-index: 10;
+        background-color: var(--sepia-medium);  /* Prevent transparency issues */
+    }
+}
+
+        /* ... other unchanged chat styles (header content, controls, messages, etc.) ... */
+        .toggle-sidebar-btn{background:0 0;border:none;font-size:1.4rem;cursor:pointer;color:var(--text-dark);margin-right:15px}.header-content{flex-grow:1}.chapter-title{font-size:1.3rem;margin:0;font-weight:600}.chapter-subtitle{font-size:.9rem;color:var(--text-light);margin-top:3px}.chat-controls{display:flex;gap:10px}.control-btn{background:0 0;border:none;font-size:1.1rem;color:var(--text-light);cursor:pointer;padding:5px;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;transition:all .2s}.control-btn:hover{background-color:rgba(201,166,107,.15);color:var(--text-dark)}.message{margin-bottom:10px;padding:20px;border-radius:var(--radius);max-width:80%;position:relative;transition:border-color .3s ease;box-shadow:var(--shadow);background-color:#fff;border:1px solid var(--border-color)}.tutor-message{align-self:flex-start}.student-message{background-color:var(--accent-gold);color:#fff;align-self:flex-end;margin-left:auto;border:none}.message-content{font-size:1.05rem;line-height:1.7}.student-message .message-content{color:#fff}.message-meta{display:flex;justify-content:space-between;margin-top:15px;font-size:.85rem;color:var(--text-light)}.student-message .message-meta{color:rgba(255,255,255,.8)}.pin-note-btn{background:0 0;border:none;color:var(--text-light);cursor:pointer;font-size:1.2rem;position:absolute;top:15px;right:15px;opacity:0;transition:opacity .2s,color .3s}.message:hover .pin-note-btn{opacity:.7}.pin-note-btn:hover{opacity:1;color:var(--accent-gold)}.student-message .pin-note-btn{color:rgba(255,255,255,.8)}.student-message .pin-note-btn:hover{color:#fff}.pin-note-btn.pinned{color:var(--accent-gold)!important;opacity:1!important}.pin-note-btn.pinned i::before{content:"\f00c"}.inline-note-form{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border-color)}.message.message-note-mode{border:2px solid var(--accent-gold)}.message.message-note-mode .inline-note-form{display:flex;gap:.5rem;align-items:center}.inline-note-form input{flex-grow:1;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color);background-color:var(--sepia-light);font-family:var(--serif)}.inline-note-form .btn{padding:8px!important;border-radius:6px!important;min-width:40px}
+
+     /* --- THE DEFINITIVE GAME BUBBLE FIX --- */
+        .message.game-message {
+            /* Basic Resets */
+            max-width: 100%;
+            width: 100%;
+            padding: 0;
+            margin: 0;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+
+            /* ** THE CRITICAL CHANGE ** */
+            /* This forces the game bubble to be exactly as tall as its container (the .chat-box) */
+            height: 100%; 
+            
+            /* Prevent this specific message from shrinking, ever. */
+            flex-shrink: 0; 
+            
+            display: flex; /* Still use flex for the iframe inside */
+        }
+
+        .message.game-message iframe {
+            width: 100%;
+            height: 100%; /* Fill the parent bubble completely */
+            border: none;
+            border-radius: 12px;
+        }
+        /* --- END OF FIX --- */
+        /* --- END OF FIX --- */
+
+        /* ... other unchanged styles (input area, buttons, etc.) ... */
+        .chat-input-container{display:flex;gap:12px;max-width:800px;margin:0 auto}#qna-input{flex-grow:1;padding:15px 20px;border-radius:var(--radius);border:1px solid var(--border-color);background-color:#fff;font-family:var(--serif);font-size:1rem;color:var(--text-dark);box-shadow:var(--shadow);transition:all .3s}#qna-input:focus{outline:0;border-color:var(--accent-gold);box-shadow:0 0 0 3px rgba(201,166,107,.2)}#send-qna-btn{background-color:var(--accent-gold);color:#fff;border:none;border-radius:var(--radius);width:50px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}#send-qna-btn:hover{background-color:var(--text-dark)}#input-area{max-width:800px;margin:0 auto;margin-bottom:20px}.continue-container{padding:0;text-align:center;margin-top:15px}.continue-btn{background-color:var(--accent-gold);color:#fff;border:none;border-radius:var(--radius);padding:12px 35px;font-family:var(--sans);font-weight:600;font-size:1.1rem;cursor:pointer;transition:all .2s;box-shadow:var(--shadow);width:100%}.continue-btn:hover{background-color:var(--text-dark);transform:translateY(-2px)}.question-options{display:flex;flex-direction:column;gap:10px;margin-top:15px}.option-btn{background-color:#fff;border:1px solid var(--border-color);border-radius:var(--radius);padding:12px 20px;cursor:pointer;font-size:1rem;font-family:var(--sans);text-align:left;transition:all .2s}.option-btn:hover{border-color:var(--accent-gold);background-color:#fffaf0}.short-answer-input{width:100%;padding:15px 20px;border-radius:var(--radius);border:1px solid var(--border-color);font-family:var(--serif);font-size:1rem;margin-bottom:10px}.submit-answer-btn{background-color:var(--accent-gold);color:#fff;border:none;padding:12px 25px;border-radius:var(--radius);font-family:var(--sans);font-weight:600;cursor:pointer;transition:all .2s}.submit-answer-btn:hover{background-color:var(--text-dark)}.reading-progress{position:absolute;top:0;left:0;height:4px;background-color:var(--accent-gold);z-index:10;transition:width .3s}.loading-spinner{display:inline-block;width:24px;height:24px;border:3px solid rgba(201,166,107,.3);border-radius:50%;border-top-color:var(--accent-gold);animation:spin 1s linear infinite;margin-left:10px;vertical-align:middle}@keyframes spin{to{transform:rotate(360deg)}}
+
+        /* --- NEW: XP BUBBLE STYLES --- */
+    #input-area {
+        /* This is crucial for positioning the bubble correctly */
+        position: relative; 
+    }
+
+    .xp-bubble {
+        position: absolute;
+        bottom: 70px; /* Start just above the "Continue" button */
+        right: 20px;
+        background-color: #ffc107; /* A rewarding gold color */
+        color: #333;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        z-index: 100;
+        /* Link the animation to the keyframes below */
+        animation: float-up-and-fade 1.5s ease-out forwards;
+    }
+
+    /* This defines the animation itself */
+    @keyframes float-up-and-fade {
+        0% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        100% {
+            opacity: 0;
+            transform: translateY(-50px); /* It will float up by 50px */
+        }
+    }
+
+    /* --- THIS IS THE FIX: NEW LIGHTBOX STYLES --- */
+    .modal {
+        display: none; 
+        position: fixed; 
+        z-index: 2000; 
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto; 
+        background-color: rgba(58, 53, 45, 0.85); /* Use a theme color */
+        -webkit-backdrop-filter: blur(5px);
+        backdrop-filter: blur(5px);
+        transition: opacity 0.3s ease;
+    }
+
+    .modal-content {
+        margin: auto;
+        display: block;
+        width: 80%;
+        max-width: 900px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 8px;
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 15px;
+        right: 35px;
+        color: #f1f1f1;
+        font-size: 40px;
+        font-weight: bold;
+        transition: 0.3s;
+        cursor: pointer;
+        z-index: 2001;
+    }
+
+    .close-btn:hover,
+    .close-btn:focus {
+        color: #bbb;
+        text-decoration: none;
+    }
+
+    /* --- Add these rules for better spacing and responsiveness --- */
+
+/* This targets the question text (<p>) inside the input area */
+#input-area p {
+    margin-bottom: 15px; /* Adds space below the question text */
+    font-size: 1.1rem;   /* Makes the question slightly larger */
+    line-height: 1.6;
+}
+
+.short-answer-input {
+    width: 100%;
+    padding: 15px 20px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+    font-family: var(--serif);
+    font-size: 1rem;
+    margin-bottom: 15px; /* Increased space between textarea and button */
+    box-sizing: border-box; /* Ensures padding is included in the width */
+    resize: vertical;       /* Allows the user to resize the textarea */
+    min-height: 80px;       /* Gives a more comfortable starting height */
+}
+
+.submit-answer-btn {
+    background-color: var(--accent-gold);
+    color: #fff;
+    border: none;
+    padding: 12px 25px;
+    border-radius: var(--radius);
+    font-family: var(--sans);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s;
+    width: 100%; /* Makes the button full-width for a better mobile experience */
+    box-sizing: border-box;
+}
+
+.submit-answer-btn:hover {
+    background-color: var(--text-dark);
+}
+    </style>
+</head>
+<body class="player-body">
+
+    <!-- THIS IS THE FIX: Move the modal HTML to be a direct child of <body> -->
+    <div id="image-modal" class="modal">
+        <span class="close-btn">&times;</span>
+        <img class="modal-content" id="modal-img">
+    </div>
+
+    <div class="guidelet-player-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="bookmark"></div>
+            <h3 class="book-title">{{ guidelet.title }}</h3>
+            
+            <ul class="chapter-nav-list">
+                {% for chapter in guidelet.lessons %}
+                    {% set chapter_classes = ['chapter-nav-item'] %}
+                    {% if chapter.id == current_lesson.id %}{% set chapter_classes = chapter_classes + ['active'] %}{% endif %}
+                    <li class="{{ chapter_classes|join(' ') }}">
+                        <a href="{{ url_for('student_chapter_view', guidelet_id=guidelet.id, chapter_number=chapter.chapter_number) }}">
+                            <span>Chapter {{ chapter.chapter_number }}: {{ chapter.title }}</span>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+            
+            {% if lesson_outline %}
+            <div class="adventure-map-container">
+                <h4 class="adventure-map-title">Your Progress</h4>
+                <ul class="adventure-map" id="adventure-map-list">
+                    {% for stage_obj in lesson_outline %}
+                        {% set loop_index = loop.index0 %}
+                        {% set item_class = 'waypoint-item' %}
+                        
+                        {% if loop_index < current_stage_index %}
+                            {% set item_class = item_class ~ ' conquered' %}
+                        {% elif loop_index == current_stage_index %}
+                            {% set item_class = item_class ~ ' active' %}
+                        {% else %}
+                            {% set item_class = item_class ~ ' undiscovered' %}
+                        {% endif %}
+
+                        <li class="{{ item_class }}" data-stage-index="{{ loop_index }}">
+                            <div class="waypoint-icon">
+                                {% if loop_index < current_stage_index %}
+                                    <i class="fas fa-check"></i>
+                                {% else %}
+                                    <i class="{{ stage_obj.icon | replace('💎', 'fas fa-book') | replace('🚀', 'fas fa-rocket') | replace('💡', 'fas fa-lightbulb') | replace('🏆', 'fas fa-trophy') | replace('➕', 'fas fa-plus-circle') | replace('⚠️', 'fas fa-exclamation-triangle') | replace('⚙️', 'fas fa-cogs') | replace('⌚', 'fas fa-stopwatch') | replace('🏘️', 'fas fa-home') | replace('🏙️', 'fas fa-city') | replace('🌍', 'fas fa-globe') | replace('💻', 'fas fa-laptop-code') | replace('📊', 'fas fa-chart-bar') }}"></i>
+                                {% endif %}
+                            </div>
+                            <div class="waypoint-label">{{ stage_obj.stage }}</div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            
+            <div class="sidebar-footer">
+                <a href="{{ url_for('dashboard') }}" class="btn-back"><i class="fas fa-arrow-left"></i> Back to My Shelf</a>
+            </div>
+        </div>
+        
+        <div id="sidebar-overlay"></div>
+
+        <!-- Main Content Area -->
+        <div class="main-chat-area">
+            <div class="chat-header">
+                <button id="toggle-sidebar-btn" class="toggle-sidebar-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="header-content">
+                    <h2 class="chapter-title">{{ current_lesson.title }}</h2>
+                    <div class="chapter-subtitle">Current Progress: {{ current_stage_index + 1 }}/{{ lesson_outline|length }} Stages</div>
+                </div>
+                <div class="chat-controls">
+                    {% if enrollment %}
+                        <button id="delete-last-btn" class="control-btn" title="Delete Last Turn"><i class="fas fa-undo"></i></button>
+                        <button id="reset-btn" class="control-btn" title="Reset Conversation"><i class="fas fa-sync-alt"></i></button>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div id="chat-box" class="chat-box"></div>
+            
+            <div class="bottom-controls-wrapper" id="bottom-controls-wrapper">
+                <div id="input-area">
+                    <!-- Continue button or question inputs will appear here -->
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" id="qna-input" placeholder="Ask a question..." autocomplete="off">
+                    <button id="send-qna-btn" title="Send">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts and Data -->
+    <script>
+        const GUIDLET_ID = "{{ guidelet.id }}";
+        const LESSON_ID = "{{ current_lesson.id }}";
+        const CSRF_TOKEN = "{{ csrf_token() }}";
+        const initialHistory = {{ initial_history|tojson }};
+        const currentState = {{ current_state|tojson }};
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+      window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, svg: { fontCache: 'global' } };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    
+    <script src="{{ url_for('static', filename='js/lesson.js') }}"></script>
+</body>
+
+</html>

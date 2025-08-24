@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{% block title %}Guidee{% endblock %}</title>
+    
+    <!-- Link to the new theme's font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- Robot theme is REPLACED with the new Playful Tech theme -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/playful_tech_theme.css') }}">
+
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <style>
+        .notification-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #dc3545;
+            border-radius: 50%;
+            margin-left: 5px;
+        }
+        /* --- Theme Toggle Styles --- */
+        #theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            line-height: 1;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+        #theme-toggle:hover {
+            background-color: #f3f4f6;
+        }
+        body.dark-mode #theme-toggle:hover {
+            background-color: #2d3748;
+        }
+        /* --- Responsive Design --- */
+        /*
+        @media (max-width: 768px) {
+            .ks-header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 1rem;
+            }
+            .ks-nav {
+                flex-direction: column;
+                width: 100%;
+                margin-top: 1rem;
+            }
+            .ks-nav a, .ks-nav .user-dropdown {
+                margin-bottom: 0.5rem;
+                width: 100%;
+            }
+            .user-dropdown-menu {
+                position: static; 
+            }
+        }*/
+    </style>
+    {% block styles %}{% endblock %}
+</head>
+<body class="{{ user_theme }}-mode">
+    <!-- The existing header structure is kept, but will be styled by the new CSS -->
+    <header class="ks-header">
+        <a href="{{ url_for('explore') }}" class="ks-logo-container">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Guidee Logo">
+            <h1>Guidee <sup>beta</sup></h1>
+        </a>
+        <nav class="ks-nav">
+            <a href="{{ url_for('explore') }}" class="nav-link {{ 'active' if request.endpoint in ['explore', 'guidelet_detail_page'] else '' }}">Library</a>
+            <a href="{{ url_for('about') }}" class="nav-link {{ 'active' if request.endpoint == 'about' else '' }}">About</a>
+
+            <!-- NEW: Theme Toggle Button -->
+            <button id="theme-toggle" title="Toggle theme">
+                <span id="icon-sun">☀️</span>
+                <span id="icon-moon">🌙</span>
+            </button>
+
+            {% if current_user.is_authenticated %}
+                {% if current_user.username %}
+                    <a href="{{ url_for('find_learners') }}" class="nav-link {{ 'active' if request.endpoint == 'find_learners' else '' }}">Find Learners</a>
+                    
+                    <div class="user-dropdown">
+                        <button class="user-dropdown-toggle" id="userMenuButton">
+                            <img src="{{ current_user.avatar_url or url_for('static', filename='images/avatars/default.png') }}" alt="User Avatar">
+                            <span>{{ current_user.username }}</span>
+                            {% if unread_notifications > 0 %}<span class="notification-dot" id="username-notification-dot"></span>{% endif %}
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <ul class="user-dropdown-menu" id="userMenu">
+                            <li><a href="{{ url_for('user_profile', username=current_user.username) }}">View Profile</a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a href="{{ url_for('dashboard') }}">My Shelf <span class="notification-dot" id="shelf-notification-dot" style="display: none;"></span></a></li>
+                            <li><a href="{{ url_for('notes_page') }}">My Notebook</a></li>
+                            {% if current_user.is_creator or current_user.is_admin %}
+    <li><a href="{{ url_for('creator_dashboard') }}">Creator Studio</a></li>
+    {% endif %}
+                            {% if current_user.is_admin %}
+                                <li class="dropdown-divider"></li>
+                                <li><a href="{{ url_for('admin_dashboard') }}">Admin Panel</a></li>
+                            {% endif %}
+                            <li class="dropdown-divider"></li>
+                            <li>
+                                <form action="{{ url_for('logout') }}" method="post" style="margin: 0;">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="dropdown-item-button">Logout</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <!-- User is authenticated but has no username, show only logout -->
+                    <form action="{{ url_for('logout') }}" method="post" class="ks-nav-logout-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="logout-button-as-link">Logout</button>
+                    </form>
+                {% endif %}
+            {% else %}
+                 <a href="{{ url_for('login') }}" class="nav-link cta-button">Login / Register</a>
+            {% endif %}
+        </nav>
+    </header>
+    
+    <main class="codex-main">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="ks-footer">
+        <p>© 2025 Guidee. All Rights Reserved.</p>
+        <p>
+            <a href="{{ url_for('privacy') }}">Privacy Policy</a> | 
+            <a href="{{ url_for('terms') }}">Terms of Service</a>
+        </p>
+    </footer>
+
+    {% block scripts %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Dropdown Menu Logic
+            const userMenuButton = document.getElementById('userMenuButton');
+            const userMenu = document.getElementById('userMenu');
+            const usernameDot = document.getElementById('username-notification-dot');
+            const shelfDot = document.getElementById('shelf-notification-dot');
+
+            if (userMenuButton) {
+                userMenuButton.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    userMenu.classList.toggle('show');
+                    if (userMenu.classList.contains('show') && usernameDot) {
+                        usernameDot.style.display = 'none';
+                        if (shelfDot) shelfDot.style.display = 'inline-block';
+                    }
+                });
+            }
+
+            document.addEventListener('click', function(event) {
+                if (userMenu && userMenu.classList.contains('show') && !userMenu.contains(event.target)) {
+                    userMenu.classList.remove('show');
+                }
+            });
+
+            // --- NEW: Theme Toggle Logic ---
+            const themeToggle = document.getElementById('theme-toggle');
+            const iconSun = document.getElementById('icon-sun');
+            const iconMoon = document.getElementById('icon-moon');
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            // Set initial icon state
+            function setInitialThemeIcon() {
+                if (document.body.classList.contains('dark-mode')) {
+                    iconMoon.style.display = 'none';
+                    iconSun.style.display = 'inline-block';
+                } else {
+                    iconSun.style.display = 'none';
+                    iconMoon.style.display = 'inline-block';
+                }
+            }
+            setInitialThemeIcon();
+
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                document.body.classList.toggle('light-mode');
+                
+                const newTheme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+
+                // Update icon
+                setInitialThemeIcon();
+
+                // Save preference to server if user is logged in
+                {% if current_user.is_authenticated %}
+                fetch('/api/set-theme', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({ theme: newTheme })
+                })
+                .catch(err => console.error('Failed to save theme:', err));
+                {% endif %}
+            });
+        });
+    </script>
+    {% endblock %}
+</body>
+</html>

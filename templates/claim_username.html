@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Claim Your Username{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<style>
+    /* These styles are for the avatar selection grid */
+    .avatar-selector {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        justify-content: center; /* Center the avatars */
+    }
+    .avatar-selector label {
+        cursor: pointer;
+        border: 3px solid transparent;
+        border-radius: 50%;
+        transition: border-color 0.2s ease;
+        padding: 2px; /* Add a little space for the border */
+        display: inline-block; /* Helps with layout */
+    }
+    .avatar-selector img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: block; /* Remove any extra space below the image */
+    }
+    .avatar-selector input[type="radio"] {
+        display: none; /* Hide the actual radio button */
+    }
+    /* This style applies when an avatar is selected */
+    .avatar-selector input[type="radio"]:checked + label {
+        border-color: #2575fc; /* A nice blue to indicate selection */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-sm mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card p-4 shadow-sm text-center">
+                <h2 class="mb-3">Welcome to Guidee!</h2>
+                <p class="text-muted mb-4">Choose a unique username and an avatar to get started.</p>
+                
+                <form method="POST" action="{{ url_for('claim_username') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <!-- Avatar Selection Grid -->
+                    <div class="form-group mb-4">
+                        <label class="form-label d-block mb-3">Choose Your Avatar</label>
+                        <div class="avatar-selector">
+                            {% for avatar in avatars %}
+                            <div>
+                                <!-- The 'checked' on the first item ensures one is selected by default -->
+                                <input type="radio" id="avatar-{{ loop.index }}" name="avatar_url" value="{{ avatar }}" {% if loop.first %}checked{% endif %}>
+                                <label for="avatar-{{ loop.index }}">
+                                    <img src="{{ url_for('static', filename=avatar.split('/static/')[1]) }}" alt="Avatar {{ loop.index }}">
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Username Input -->
+                    <div class="form-group mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary">Claim Username & Start Learning</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

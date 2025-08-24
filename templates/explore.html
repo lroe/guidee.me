@@ -1,0 +1,307 @@
+{% extends "base.html" %}
+{% block title %}Explore Guidelets{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<style>
+    /*
+    ================================================================
+    MAIN PAGE LAYOUT & HERO SECTION
+    ================================================================
+    */
+    main.codex-main {
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .hero-section, .welcome-banner {
+        background-color: var(--bg-light);
+        padding: 4rem 2rem;
+        max-width: 1200px;
+        margin: 2rem auto;
+        border-radius: var(--border-radius);
+        text-align: center;
+    }
+
+    .hero-content h2, .welcome-banner h2 {
+        font-size: 2.8rem;
+        font-weight: 700;
+        margin-top: 0;
+        margin-bottom: 1rem;
+        line-height: 1.2;
+    }
+
+    .hero-content p, .welcome-banner p {
+        font-size: 1.1rem;
+        color: var(--text-light);
+        margin-bottom: 2rem;
+    }
+    
+    .cta-container {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .guidelet-section { padding: 3rem 0; }
+    .section-container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+    .section-container h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .filter-controls {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 3rem;
+    }
+    .filter-controls form {
+        display: flex;
+        gap: 1rem;
+        width: 100%;
+        max-width: 800px;
+        align-items: center;
+    }
+    .filter-controls input {
+        flex-grow: 1;
+    }
+    .filter-controls button {
+        flex-shrink: 0;
+    }
+    
+    /* Dark Mode specific styles for hero/banner */
+    body.dark-mode .hero-section, body.dark-mode .welcome-banner {
+        background-color: #1E1E1E;
+    }
+
+    /*
+    ================================================================
+    YIFY-INSPIRED GUIDELET GRID & CARD STYLES
+    ================================================================
+    */
+    .guidelet-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 2rem;
+    }
+
+    .guidelet-card {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        position: relative;
+        transition: transform 0.3s ease;
+    }
+
+    .guidelet-card:hover {
+        transform: translateY(-8px);
+    }
+
+    .card-thumbnail {
+        background-color: #ffffff;
+        padding: 4px;
+        border-radius: 4px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        aspect-ratio: 2 / 3;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .card-thumbnail img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        border-radius: 2px;
+        transition: transform 0.4s ease;
+    }
+
+    .guidelet-card:hover .card-thumbnail img {
+        transform: scale(1.05);
+    }
+
+    .card-overlay {
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        width: calc(100% - 8px);
+        height: calc(100% - 8px);
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.95), transparent);
+        opacity: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+        text-align: center;
+        padding: 1rem;
+        box-sizing: border-box;
+        transition: opacity 0.3s ease;
+    }
+
+    .guidelet-card:hover .card-overlay {
+        opacity: 1;
+    }
+
+    .overlay-rating {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #FFD700;
+        margin-bottom: 0.5rem;
+    }
+
+    .overlay-category {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #ffffff;
+        margin-bottom: 1rem;
+    }
+
+    .overlay-button {
+        display: inline-block;
+        background-color: rgba(5, 206, 120, 0.8);
+        color: #ffffff;
+        padding: 8px 20px;
+        border-radius: 20px;
+        text-decoration: none;
+        font-weight: 600;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(5px);
+    }
+
+    .card-content {
+        padding-top: 1rem;
+    }
+
+    .card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-dark); /* Use theme variable */
+        margin: 0 0 0.25rem 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .card-author {
+        font-size: 0.85rem;
+        color: var(--text-light); /* Use theme variable */
+        margin: 0;
+    }
+
+    body.dark-mode .card-title {
+        color: #f7fafc;
+    }
+
+    .admin-actions {
+        margin-top: 1rem;
+        display: flex;
+        gap: 0.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    @media (max-width: 768px) {
+        .filter-controls form {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+{% if current_user.is_authenticated %}
+    <!-- Logged-In User Banner -->
+    <div class="welcome-banner">
+        <h2>Welcome back, {{ current_user.username }}!</h2>
+        <p>Ready to continue your learning journey or create something new?</p>
+        <div class="cta-container">
+            <a href="{{ url_for('dashboard') }}" class="cta-button">Go to My Shelf</a>
+            {% if current_user.is_creator or current_user.is_admin %}
+                <a href="{{ url_for('creator_dashboard') }}" class="btn btn-secondary">Creator Studio</a>
+            {% endif %}
+        </div>
+    </div>
+{% else %}
+    <!-- New Visitor Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h2>The Classroom is Evolving.</h2>
+            <p>Master any subject through unforgettable, interactive learning experiences powered by AI.</p>
+            <div class="cta-container">
+                <a href="#guidelet-section" class="cta-button">Explore The Library</a>
+                <a href="{{ url_for('request_topic') }}" class="btn btn-secondary">Request a Topic</a>
+            </div>
+        </div>
+    </section>
+{% endif %}
+
+
+<section class="guidelet-section" id="guidelet-section">
+    <div class="section-container">
+        
+        <!-- START OF MODIFIED SECTION -->
+        <div class="filter-controls">
+            <form method="GET" action="{{ url_for('explore') }}">
+                <input type="text" name="q" placeholder="What do you want to learn about today?" value="{{ search_query or '' }}">
+                
+                <!-- The Category and Sort dropdowns have been removed -->
+
+                <button type="submit" class="cta-button">Search</button>
+            </form>
+        </div>
+        <!-- END OF MODIFIED SECTION -->
+
+        <h2>Featured Guidelets</h2>
+        {% if guidelets %}
+            <div class="guidelet-grid">
+                {% for guidelet in guidelets %}
+                    <a href="{{ url_for('guidelet_detail_page', guidelet_id=guidelet.id) }}" class="guidelet-card">
+                        <div class="card-thumbnail">
+                            <img src="{{ guidelet.thumbnail_url or url_for('static', filename='images/logo.png') }}" alt="{{ guidelet.title }} Thumbnail">
+                            <div class="card-overlay">
+                                {% if guidelet.average_rating > 0 %}
+                                    <div class="overlay-rating">★ {{ "%.1f"|format(guidelet.average_rating) }}</div>
+                                {% endif %}
+                                <div class="overlay-category">{{ guidelet.category or 'General' }}</div>
+                                <span class="overlay-button">View Details</span>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title">{{ guidelet.title }}</h3>
+                            <p class="card-author">{{ guidelet.creator.username }}</p>
+                            
+                            {% if current_user.is_authenticated and current_user.is_admin %}
+                                <div class="admin-actions">
+                                    <form action="{{ url_for('unpublish_guidelet', guidelet_id=guidelet.id) }}" method="post" style="flex: 1;" onsubmit="event.preventDefault(); event.stopPropagation(); if(confirm('Are you sure you want to unpublish the guidelet \'{{ guidelet.title }}\'?')) this.submit();">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-secondary" style="width: 100%;">Unpublish</button>
+                                    </form>
+                                    <form action="{{ url_for('admin_delete_guidelet', guidelet_id=guidelet.id) }}" method="post" style="flex: 1;" onsubmit="event.preventDefault(); event.stopPropagation(); if(confirm('Are you sure you want to permanently delete \'{{ guidelet.title }}\'?')) this.submit();">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-danger" style="width: 100%;">Delete</button>
+                                    </form>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+                        <div style="text-align: center; padding: 2rem;">
+                <p>We couldn't find any guidelets matching "<strong>{{ search_query }}</strong>".</p>
+                <p>Would you like us to create one? <a href="{{ url_for('request_topic', q=search_query) }}" class="btn btn-secondary">Request this Topic</a></p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+{% endblock %}

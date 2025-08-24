@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}My Notebook{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<style>
+    /* Add the CSS from the mockup here for the notebook page layout */
+    .notebook-container { display: flex; height: calc(100vh - 200px); /* Adjust height based on header/footer */ }
+    .notebook-sidebar {
+        width: 280px; background: var(--bg-white); border-right: 1px solid var(--border-color);
+        padding: 1.5rem; display: flex; flex-direction: column;
+    }
+    .notebook-sidebar h2 { margin: 0 0 1.5rem 0; font-size: 1.5rem; }
+    .guidelet-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; }
+    .guidelet-list-item a {
+        display: block; padding: 12px 15px; text-decoration: none; color: var(--text-dark);
+        border-radius: 8px; font-weight: 500; margin-bottom: 5px;
+    }
+    .guidelet-list-item a:hover { background-color: #f0f2f5; }
+    .guidelet-list-item.active a { background-color: var(--brand-blue-dark); color: white; }
+    
+    .notes-main { flex-grow: 1; padding: 2rem 3rem; overflow-y: auto; }
+    .notes-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+    .notes-header h1 { margin: 0; }
+    #notes-feed { margin-top: 1rem; }
+
+    .note-card {
+        background: var(--bg-white); border-left: 4px solid var(--brand-blue-dark); border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 1.5rem; margin-bottom: 1.5rem;
+    }
+    .note-card-saved-content {
+        background: #f9f9f9; padding: 1rem; border-radius: 6px;
+        border: 1px solid var(--border-color); font-style: italic; color: #555; margin-bottom: 1rem;
+    }
+    .note-card-user-thoughts textarea {
+        width: 100%; border: 1px solid transparent; padding: 10px;
+        border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 1rem;
+        min-height: 60px; resize: vertical; box-sizing: border-box;
+    }
+    .note-card-user-thoughts textarea:focus { outline: none; border-color: var(--brand-blue-dark); background: #f0f2f5; }
+    .note-card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; }
+    .context-btn {
+        background: none; border: 1px solid var(--border-color); color: #555;
+        padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 500; text-decoration: none;
+    }
+    .delete-note-btn { background-color: #fee2e2; color: #ef4444; border: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="notebook-container">
+    <aside class="notebook-sidebar">
+        <h2>My Notebook</h2>
+        <ul id="guidelet-list" class="guidelet-list">
+            <!-- Guidelets will be loaded here by JS -->
+        </ul>
+    </aside>
+
+    <main class="notes-main">
+        <div class="notes-header">
+            <h1 id="current-guidelet-title">Select a Guidelet</h1>
+        </div>
+
+        <div id="notes-feed">
+            <!-- Notes will be loaded here by JS -->
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/notes.js') }}"></script>
+{% endblock %}

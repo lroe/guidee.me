@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Create New Game{% endblock %}
+{% block content %}
+    <h1>Create a New Interactive Game</h1>
+    <p>Give your game a title. You'll add the code on the next screen.</p>
+    <form method="POST" action="{{ url_for('create_game') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group">
+            <label for="title">Game Title</label>
+            <input type="text" id="title" name="title" required placeholder="e.g., Mitosis Labeling Challenge">
+        </div>
+        <button type="submit" class="btn btn-primary">Create and Edit Game</button>
+    </form>
+{% endblock %}

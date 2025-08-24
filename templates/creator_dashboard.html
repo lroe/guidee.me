@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Creator Studio{% endblock %}
+{% block content %}
+
+    <h2>Creator Studio</h2>
+
+    <div class="creator-stats">
+        <div class="stat-card">
+            <h4>Total Enrollments</h4>
+            <p>{{ total_enrollments }}</p>
+        </div>
+        <div class="stat-card">
+            <h4>Average Rating</h4>
+            <p>{{ "%.1f"|format(average_rating) }} ★</p>
+        </div>
+        <div class="stat-card">
+            <h4>Total Reviews</h4>
+            <p>{{ total_reviews }}</p>
+        </div>
+        <div class="stat-card">
+        <h4><a href="{{ url_for('game_studio') }}">Game Studio</a></h4>
+        <p>Manage your interactive games.</p>
+    </div>
+    </div>
+
+    <div class="create-guidelet-form">
+        <h3>Create a New Guidelet</h3>
+        <form action="{{ url_for('create_guidelet') }}" method="post" class="inline-form">
+            <div class="form-group">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="text" id="title" name="title" required placeholder="Title your new codex...">
+            </div>
+            <button type="submit" class="btn">Begin</button>
+        </form>
+    </div>
+
+    <hr class="section-divider">
+
+    <h3>Your Works</h3>
+    {% if created_guidelets_with_stats %}
+        <ul class="guidelet-list">
+            {# MODIFIED: Use the new data structure from the route #}
+            {% for guidelet, total_watch_time in created_guidelets_with_stats %}
+                <li class="guidelet-item">
+                    <div class="guidelet-info">
+                        <h3 class="guidelet-title">{{ guidelet.title }}</h3>
+                        <p class="chapter-count">
+                            ({{ guidelet.lessons|length }} Chapters) -
+                            {% if guidelet.is_published %}
+                                <span style="color: #2f5d2f; font-weight: bold;">Published</span>
+                                {# NEW: Display watch time #}
+                                - <span title="Total student watch time">🕒 {{ total_watch_time|format_seconds }}</span>
+                            {% else %}
+                                <span style="color: #6c5a3e;">Draft</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="guidelet-actions">
+                        <a href="{{ url_for('manage_guidelet', guidelet_id=guidelet.id) }}" class="btn btn-secondary">Manage</a>
+                        <a href="{{ url_for('guidelet_player', guidelet_id=guidelet.id) }}" class="btn btn-secondary" target="_blank">Preview</a>
+
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>You have not created any guidelets yet. Use the form above to begin your work.</p>
+    {% endif %}
+
+{% endblock %}

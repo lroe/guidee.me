@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}Edit Your Profile{% endblock %}
+
+{% block content %}
+<style>
+    .avatar-selector {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .avatar-selector label {
+        cursor: pointer;
+        border: 2px solid transparent;
+        border-radius: 50%;
+        transition: border-color 0.2s ease;
+    }
+    .avatar-selector img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+    }
+    .avatar-selector input[type="radio"] {
+        display: none;
+    }
+    .avatar-selector input[type="radio"]:checked + label {
+        border-color: var(--primary-color);
+    }
+</style>
+
+<div class="container-sm mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card p-4 shadow-sm">
+                <h2 class="text-center mb-4">Edit Your Public Profile</h2>
+                <form method="POST" action="{{ url_for('edit_profile') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    
+                    <h4 class="mt-4">Choose Your Avatar</h4>
+                    <div class="avatar-selector">
+                        {% for avatar in avatars %}
+                        <div>
+                            <input type="radio" id="avatar-{{ loop.index }}" name="avatar_url" value="{{ avatar }}" {% if avatar == current_user.avatar_url %}checked{% endif %}>
+                            <label for="avatar-{{ loop.index }}">
+                                <img src="{{ url_for('static', filename=avatar.split('/static/')[1]) }}" alt="Avatar {{ loop.index }}">
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" value="{{ current_user.username or '' }}">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="bio" class="form-label">Your Bio</label>
+                        <textarea class="form-control" id="bio" name="bio" rows="5" placeholder="Tell students a little about yourself, your background, and your teaching philosophy.">{{ current_user.bio or '' }}</textarea>
+                    </div>
+
+                    <h4 class="mt-4">Your Links</h4>
+                    <p class="text-muted">Add links to your personal website, social media, or other platforms.</p>
+                    
+                    <div id="links-container">
+                        {% set links = current_user.links or {} %}
+                        {% if links %}
+                            {% for name, url in links.items() %}
+                            <div class="input-group mb-2 link-entry">
+                                <input type="text" name="link_name" class="form-control" placeholder="Link Title (e.g., My Blog)" value="{{ name }}">
+                                <input type="url" name="link_url" class="form-control" placeholder="https://..." value="{{ url }}">
+                                <button type="button" class="btn btn-danger remove-link-btn">Remove</button>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="input-group mb-2 link-entry">
+                                <input type="text" name="link_name" class="form-control" placeholder="Link Title (e.g., My Blog)">
+                                <input type="url" name="link_url" class="form-control" placeholder="https://...">
+                                <button type="button" class="btn btn-danger remove-link-btn" style="display:none;">Remove</button>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <button type="button" id="add-link-btn" class="btn btn-secondary mt-2">Add Another Link</button>
+
+                    <hr class="my-4">
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Save Profile</button>
+                    </div>
+                </form>
+
+                <hr class="my-4">
+
+                <div class="danger-zone-content" style="background: #f2dede; border: 1px solid #ebccd1; padding: 20px; border-radius: 5px;">
+                    <h4 style="color: #a94442;">Danger Zone</h4>
+                    <p><strong>Export Your Data</strong></p>
+                    <p>Download a JSON file containing all of your account information, guidelets, and reviews.</p>
+                    <a href="{{ url_for('export_data') }}" class="btn btn-secondary">Export My Data</a>
+                    <hr class="my-3">
+                    <p><strong>Delete Your Account</strong></p>
+                    <p>Once you delete your account, there is no going back. All of your guidelets, enrollments, and reviews will be permanently deleted. Please be certain.</p>
+                    <form action="{{ url_for('delete_account') }}" method="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you absolutely sure you want to delete your account? This action is irreversible.');">
+                            Delete My Account Permanently
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('add-link-btn').addEventListener('click', function() {
+        const container = document.getElementById('links-container');
+        const newLinkEntry = document.createElement('div');
+        newLinkEntry.className = 'input-group mb-2 link-entry';
+        newLinkEntry.innerHTML = `
+            <input type="text" name="link_name" class="form-control" placeholder="Link Title">
+            <input type="url" name="link_url" class="form-control" placeholder="https://...">
+            <button type="button" class="btn btn-danger remove-link-btn">Remove</button>
+        `;
+        container.appendChild(newLinkEntry);
+    });
+
+    document.getElementById('links-container').addEventListener('click', function(e) {
+        if (e.target && e.target.classList.contains('remove-link-btn')) {
+            const entry = e.target.closest('.link-entry');
+            // Don't remove the very last one
+            if (document.querySelectorAll('.link-entry').length > 1) {
+                entry.remove();
+            } else {
+                // Clear the fields if it's the last one
+                entry.querySelector('input[name="link_name"]').value = '';
+                entry.querySelector('input[name="link_url"]').value = '';
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

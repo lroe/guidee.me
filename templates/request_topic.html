@@ -1,0 +1,24 @@
+
+{% extends "base.html" %}
+{% block title %}Request a Topic{% endblock %}
+
+{% block content %}
+    <h2>Request a Topic</h2>
+    <p>Is there a subject you'd love to learn about on Guidee? Let us know! Your requests help us decide what to build next.</p>
+
+    <form method="POST" action="{{ url_for('request_topic') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        
+        <div class="form-group">
+            <label for="topic_title">Topic Title</label>
+            <input type="text" id="topic_title" name="topic_title" required placeholder="e.g., Korean" value="{{ search_query or '' }}">
+        </div>
+
+        <div class="form-group">
+            <label for="details">Additional Details (Optional)</label>
+            <textarea id="details" name="details" rows="4" placeholder="e.g., Can you do it before <date> and <e-mail> me perhaps? "></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit Request</button>
+    </form>
+{% endblock %}

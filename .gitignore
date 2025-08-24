@@ -1,0 +1,18 @@
+# Virtual Environment
+env/
+venv/
+*.pyc
+
+# Database
+coursewell.db
+instance/
+
+# Dotenv file
+.env
+
+# IDE / OS files
+.vscode/
+__pycache__/
+.DS_Storeclaenh-db-firebase-adminsdk-*.json
+# Ignore all JSON files, especially secret credentials
+*.json

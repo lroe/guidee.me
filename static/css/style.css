@@ -1,0 +1,650 @@
+/* --- CourseWell Codex Theme --- */
+/* --- 1. Core & Fonts --- */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Spectral', serif;
+  background: #f9f5e3 url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+  color: #3e2d1c;
+  line-height: 1.7;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  color: #402c1a;
+}
+
+a {
+  color: #8b5a2b;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* --- 2. Layout (Header, Nav, Main, Footer) --- */
+header.codex-header {
+  background: linear-gradient(135deg, #d1bfa4, #b89b6c);
+  padding: 2.5rem;
+  text-align: center;
+  border-bottom: 4px solid #5c4a2e;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+header.codex-header h1 {
+  font-family: 'UnifrakturCook', cursive;
+  font-size: 3.5rem;
+  margin: 0;
+  color: #2f1b0c;
+  text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.2);
+}
+
+header.codex-header p {
+  font-size: 1.1rem;
+  margin-top: 0.5rem;
+  color: #4e3928;
+  font-style: italic;
+}
+
+nav.codex-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2rem;
+  padding: 1rem;
+  background-color: #f2e8cf;
+  border-bottom: 2px solid #b29a6e;
+}
+
+nav.codex-nav a {
+  text-decoration: none;
+  color: #5c3c1a;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-size: 1.1em;
+}
+
+nav.codex-nav a:hover {
+  color: #8b5a2b;
+  text-shadow: 0 1px 1px #fff8dc;
+  text-decoration: none;
+}
+
+main.codex-main {
+  max-width: 960px;
+  margin: 3rem auto;
+  padding: 2rem 3rem;
+  background: #fffaf0;
+  border: 1px solid #dbc9a2;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+}
+
+footer.codex-footer {
+  text-align: center;
+  padding: 1.5rem;
+  margin-top: 4rem;
+  font-size: 0.95rem;
+  background: #d1bfa4;
+  color: #3e2d1c;
+  border-top: 4px solid #5c4a2e;
+}
+
+hr.section-divider {
+    border: 0;
+    height: 2px;
+    background-image: linear-gradient(to right, rgba(92, 74, 46, 0), rgba(92, 74, 46, 0.75), rgba(92, 74, 46, 0));
+    margin: 3rem 0;
+}
+
+/* --- 3. Components (Course Items, Forms, Buttons) --- */
+.course-list { list-style: none; padding: 0; }
+.course-item {
+  border: 2px solid #bfa073;
+  background: linear-gradient(#fcf8e3, #f6e7c1);
+  margin: 2rem 0;
+  padding: 1.5rem 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1), inset 0 0 10px #d3bb96;
+  transition: all 0.3s ease-in-out;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.course-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.15), inset 0 0 10px #d3bb96;
+}
+
+.course-info .course-title { font-size: 1.6rem; margin-top: 0; font-weight: 600;}
+.course-info .chapter-count, .course-info .course-meta { font-size: 1rem; color: #5a4732; margin-top: 5px; }
+
+
+/* THIS ENTIRE BLOCK is the problem. It is styling the logout button. */
+/* It has been REMOVED/DELETED from the file. */
+
+
+.form-group { margin-bottom: 1.5rem; }
+label { display: block; margin-bottom: 8px; font-weight: 600; color: #5c4a2e; }
+input[type="text"], input[type="password"], textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #dbc9a2;
+    background-color: #fcf8e3;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-family: 'Spectral', serif;
+    font-size: 1rem;
+    color: #3e2d1c;
+}
+input:focus, textarea:focus { outline: 2px solid #bfa073; }
+
+/* Alert / Flash Message Styles */
+.alert { padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px; }
+.alert-success { color: #2f5d2f; background-color: #dff0d8; border-color: #d6e9c6; }
+.alert-danger { color: #a94442; background-color: #f2dede; border-color: #ebccd1; }
+.alert-info { color: #31708f; background-color: #d9edf7; border-color: #bce8f1; }
+.alert-warning { color: #8a6d3b; background-color: #fcf8e3; border-color: #faebcc; }
+
+/* --- 4. Course Player & Chat --- */
+.course-player-body { background: #e5e1d3; } /* A slightly different background for the player */
+.course-player-container { display: flex; width: 100%; height: 100vh; font-family: 'Spectral', serif;}
+
+.sidebar {
+    width: 320px;
+    background: #c1a884;
+    border-right: 3px solid #5c4a2e;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: inset -5px 0 15px rgba(0,0,0,0.2);
+    overflow-y: auto;
+}
+.sidebar h3 { color: #3e2d1c; border-bottom: 2px solid #6c5a3e; padding-bottom: 10px; }
+.chapter-nav-list { list-style: none; padding: 0; margin: 0; }
+.chapter-nav-item a {
+    display: flex; align-items: center;
+    padding: 12px 15px; text-decoration: none; color: #4e3928;
+    border-radius: 4px; margin-bottom: 5px;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+.chapter-nav-item a:hover { background-color: rgba(255, 255, 255, 0.2); }
+.chapter-nav-item.active a {
+    background-color: #f9f5e3;
+    color: #3e2d1c;
+    font-weight: bold;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+    border: 1px solid #a5875a;
+}
+.chapter-nav-item.completed a { color: #6c5a3e; text-decoration: line-through; }
+.chapter-nav-icon { color: #3e2d1c; font-weight: bold; margin-right: 8px; }
+
+.main-chat-area { 
+    flex-grow: 1; 
+    display: flex; 
+    flex-direction: column; 
+    height: 100vh; 
+    padding: 0; /* Remove old padding */
+    background: #f9f5e3 url('https://www.transparenttextures.com/patterns/paper-fibers.png'); 
+}
+
+.chat-header {
+    position: fixed; /* Use fixed positioning */
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 15px 20px;
+    background: #f9f5e3;
+    border-bottom: 2px solid #d3bb96;
+    z-index: 100;
+    transition: top 0.3s ease-in-out; /* Animate the top property */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.chat-header.header-hidden {
+    top: -100px; /* Animate it completely out of view */
+}
+
+.chat-header h2 { 
+    margin: 0; 
+    font-size: 1.2rem;
+}
+
+.chat-box { 
+    flex-grow: 1; 
+    overflow-y: auto; 
+    padding: 10px;
+    padding-top: 80px; /* Add padding to prevent overlap with the fixed header */
+}
+.message { margin-bottom: 15px; padding: 10px 18px; border-radius: 18px; max-width: 80%; line-height: 1.5; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.tutor-message { background-color: #fffaf0; border: 1px solid #dbc9a2; align-self: flex-start; float: left; clear: both; }
+.student-message { background-color: #d1bfa4; color: #4e3928; align-self: flex-end; float: right; clear: both; }
+.options-container button { width: 100%; margin-top: 8px; text-align: left; }
+
+/* --- 5. Reviews and Ratings --- */
+.rating-stars { color: #c8811a; }
+.star-rating { display: flex; flex-direction: row-reverse; justify-content: flex-end; }
+.star-rating input[type="radio"] { display: none; }
+.star-rating label { font-size: 30px; color: #c8c1b5; cursor: pointer; }
+.star-rating input[type="radio"]:checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label { color: #c8811a; }
+.review-item {
+    background-color: #fcf8e3;
+    border: 1px solid #d3bb96;
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 15px;
+}
+
+.review-comment-text {
+    /* This is the magic property! */
+    white-space: pre-wrap;
+}
+
+/* --- New Block Editor Styles --- */
+.content-block {
+    display: flex;
+    align-items: flex-start;
+    background: #fdf6e7;
+    border: 1px solid #d3bb96;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 10px;
+}
+
+.drag-handle {
+    cursor: grab;
+    color: #a5875a;
+    font-size: 24px;
+    padding-right: 15px;
+    user-select: none;
+}
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+.block-content {
+    flex-grow: 1;
+}
+
+/* Remove this entire block */
+.block-textarea {
+    /* ... */
+}
+
+/* --- New Rich-Text Editor Styles --- */
+.tox-tinymce {
+    border: none !important;
+    border-radius: 3px !important;
+    box-shadow: 0 0 15px rgba(0,0,0,0.05) !important;
+}
+
+.tox .tox-edit-area__iframe {
+    background-color: #fffaf0 !important;
+}
+
+.tox .tox-toolbar-overlord, .tox .tox-toolbar__primary {
+    background-color: #f2e8cf !important;
+    border-bottom: 2px solid #b29a6e !important;
+}
+
+.tox .tox-tbtn, .tox .tox-split-button__chevron {
+    color: #5c3c1a !important;
+}
+
+.tox .tox-tbtn:hover, .tox .tox-split-button:hover {
+    background-color: rgba(184, 155, 108, 0.2) !important;
+}
+
+.tox .tox-tbtn--enabled, .tox .tox-tbtn--active {
+    background-color: rgba(184, 155, 108, 0.4) !important;
+}
+
+/* Style for the main title input on the edit page */
+.chapter-title-editor {
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+    font-size: 2.5rem; /* Large and prominent */
+    font-weight: 600;
+    color: #402c1a;
+    border: none; /* No ugly border */
+    background: transparent; /* Blends into the page */
+    width: 100%;
+    padding: 10px 0;
+    border-bottom: 2px solid transparent; /* Hidden bottom border */
+    transition: border-color 0.3s ease;
+}
+
+.chapter-title-editor:focus {
+    outline: none; /* Remove default blue ring */
+    border-bottom: 2px solid #bfa073; /* Shows a subtle indicator on focus */
+}
+
+/* --- New Editor.js Styles --- */
+.codex-editor {
+    /* This class is added by Editor.js, we can target it */
+    padding: 1rem;
+    border: 1px solid #d3bb96;
+    border-radius: 5px;
+    background: #fdf6e7;
+}
+
+/* Style the placeholder text */
+.ce-paragraph[data-placeholder]:empty::before{
+    color: #a5875a;
+    font-style: italic;
+}
+
+/* Style for headings */
+.ce-header {
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+    color: #402c1a;
+    padding: 0;
+    margin: 1.5em 0 0.5em;
+}
+
+/* Style for list items */
+.ce-list__item {
+    line-height: 1.8;
+}
+
+/* Inline toolbar styles */
+.ce-inline-toolbar {
+    background: #5c4a2e !important;
+    border-radius: 5px !important;
+    color: #f9f5e3 !important;
+}
+
+.ce-inline-tool, .ce-inline-toolbar__dropdown {
+    color: #f9f5e3 !important;
+}
+.ce-inline-tool:hover, .ce-inline-toolbar__dropdown:hover {
+    background-color: #6c5a3e !important;
+}
+
+/* Settings/Tune menu styles */
+.ce-settings {
+    background: #5c4a2e !important;
+    color: #f9f5e3 !important;
+}
+.ce-settings__button:hover {
+    background: #6c5a3e !important;
+}
+
+/* --- New Chat Input Styles --- */
+.chat-input-container {
+    display: flex;
+    gap: 10px;
+    padding: 15px 10px;
+    border-top: 2px solid #d3bb96;
+    background-color: #f2e8cf; /* A slightly different color to stand out */
+}
+
+.chat-input-container input[type="text"] {
+    flex-grow: 1; /* Make the input take up most of the space */
+    border: 1px solid #bfa073;
+    padding: 10px 15px;
+    border-radius: 20px; /* Rounded corners */
+    background-color: #fffaf0;
+}
+.chat-input-container input[type="text"]:focus {
+    outline: none;
+    border-color: #8b5a2b;
+    box-shadow: 0 0 5px rgba(139, 90, 43, 0.3);
+}
+
+.chat-input-container button {
+    flex-shrink: 0; /* Prevent the button from shrinking */
+    padding: 10px 15px;
+    border-radius: 20px;
+}
+
+/* ... (all your existing CSS) ... */
+
+/* --- New Editor Preview for Audio --- */
+.audio-preview {
+    background-color: #f7f7f7;
+    border: 1px solid #d1bfa4;
+    border-radius: 5px;
+    padding: 15px;
+    margin: 1rem 0;
+    font-style: italic;
+    color: #5c4a2e;
+}
+.audio-preview audio {
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* --- 2. Layout (Header, Nav, Main, Footer) --- */
+
+/* NEW styles for the logo and header title */
+.logo-title-container {
+    display: flex;
+    justify-content: center; /* Center the items horizontally */
+    align-items: center;    /* Align the items vertically */
+    gap: 1rem;              /* Add some space between the logo and the title */
+}
+
+.header-logo {
+    height: 70px; /* Adjust this value to make your logo bigger or smaller */
+    width: auto;   /* Maintains the aspect ratio */
+}
+.login-link {
+    margin-left: auto;
+}
+
+/* --- New Dropdown Menu Styles --- */
+.user-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.user-dropdown-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Rubik', sans-serif; /* Match the nav font */
+    font-size: 1rem; /* Match the nav font size */
+    color: var(--fg);
+}
+
+.user-dropdown-toggle img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+
+.user-dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    min-width: 200px;
+    z-index: 1000;
+    list-style: none;
+    padding: 0.5rem 0;
+    margin-top: 0.5rem;
+}
+
+.user-dropdown-menu.show {
+    display: block;
+}
+
+.user-dropdown-menu a,
+.user-dropdown-menu .dropdown-item-button {
+    display: block;
+    padding: 0.75rem 1.25rem;
+    color: #333;
+    text-decoration: none;
+    font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+.user-dropdown-menu a:hover,
+.user-dropdown-menu .dropdown-item-button:hover {
+    background-color: #f5f5f5;
+    text-decoration: none;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background-color: #eee;
+    margin: 0.5rem 0;
+}
+
+.dropdown-item-button {
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+/* END of new styles */
+
+/* --- New Tab Styles --- */
+.tabs {
+    display: flex;
+    border-bottom: 2px solid #ddd;
+    margin-bottom: 2rem;
+}
+
+.tab-link {
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #555;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+}
+
+.tab-link.active {
+    color: #007bff;
+    border-bottom-color: #007bff;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+/* END of new styles */
+
+/* END of new styles */
+
+.ks-nav-logout-form {
+    margin-left: auto; /* Pushes the form to the far right */
+}
+
+.logout-button-as-link {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: #656969; /* Standard link color from your theme */
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem; /* Match padding of other nav links */
+    line-height: 1.5;
+    transition: color 0.15s ease-in-out;
+}
+
+.logout-button-as-link:hover {
+    color: #000; /* Hover color from your theme */
+}
+
+/* --- Loading Overlay --- */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 250, 240, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    backdrop-filter: blur(5px);
+}
+
+.loading-overlay .loading-spinner {
+    border: 6px solid #f2e8cf;
+    border-top: 6px solid #8b5a2b;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+
+.loading-overlay p {
+    margin-top: 20px;
+    font-size: 1.2rem;
+    color: #5c4a2e;
+    font-weight: bold;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* --- Image Description Modal --- */
+.image-description-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.image-description-modal .modal-content {
+    background: #fffaf0;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
+    border: 2px solid #bfa073;
+}
+
+.image-description-modal .modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.image-description-modal button {
+    padding: 10px 20px;
+}
+
+.image-description-modal textarea {
+    width: calc(100% - 24px);
+    margin-top: 1rem;
+    min-height: 80px;
+}

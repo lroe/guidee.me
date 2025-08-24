@@ -1,0 +1,1311 @@
+/* /static/css/playful_tech_theme.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+/*-- -------------------------- --*/
+/*--   PLAYFUL TECH THEME       --*/
+/*-- -------------------------- --*/
+
+/*-- 1. Variables & Core Setup --*/
+:root {
+    --bg-light: #FCEEDB;      /* Mascot's background color */
+    --bg-white: #FFFFFF;
+    --text-dark: #3D3D3D;     /* Dark, readable text */
+    --text-light: #6B7280;    /* Lighter gray for subtext */
+    --brand-blue: #A2ADB8;    /* Mascot's primary color */
+    --brand-blue-dark: #626C77;/* Darker blue for hover */
+    --accent-pink: #F9D1D1;   /* Accent from mascot's cheeks */
+    --border-color: #E5E7EB;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    --border-radius: 12px;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif !important;
+    background-color: var(--bg-white);
+    color: var(--text-dark);
+    line-height: 1.6;
+    background-image: none !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', sans-serif !important;
+    color: var(--text-dark);
+    font-weight: 700;
+}
+
+a {
+  color: var(--brand-blue-dark);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--brand-blue);
+  text-decoration: underline;
+}
+
+/*-- 2. Header & Navigation --*/
+header.ks-header {
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ks-logo-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: var(--text-dark);
+}
+
+.ks-logo-container img {
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+}
+
+.ks-logo-container h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+nav.ks-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ks-nav .nav-link, .logout-button-as-link {
+    text-decoration: none !important;
+    color: var(--text-light) !important;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out;
+}
+
+.ks-nav .nav-link:hover, .logout-button-as-link:hover {
+    color: var(--text-dark) !important;
+    background-color: #f3f4f6;
+    text-decoration: none !important;
+}
+
+.ks-nav .nav-link.active {
+    color: var(--brand-blue-dark) !important;
+    background-color: #EBF0F3;
+}
+
+/*-- 3. Buttons & Forms --*/
+.btn, .cta-button, main.codex-main button, main.codex-main button[type="submit"], main.codex-main .btn {
+    display: inline-block;
+    background-color: var(--brand-blue) !important;
+    color: #fff !important;
+    padding: 12px 24px !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    font-size: 1rem !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease-in-out !important;
+    box-shadow: var(--shadow) !important;
+    font-family: 'Poppins', sans-serif !important;
+    background-image: none !important;
+    text-shadow: none !important;
+}
+
+.btn:hover, .cta-button:hover, main.codex-main button:hover, main.codex-main button[type="submit"]:hover, main.codex-main .btn:hover {
+    background-color: var(--brand-blue-dark) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: var(--shadow-lg) !important;
+}
+
+.btn-secondary {
+    background: #EBF0F3 !important;
+    color: var(--brand-blue-dark) !important;
+}
+.btn-secondary:hover {
+    background: #dde4e8 !important;
+}
+.btn-danger {
+    background: #fee2e2 !important;
+    color: #ef4444 !important;
+}
+.btn-danger:hover {
+    background: #fecaca !important;
+}
+
+.ks-nav a.cta-button {
+    color: white !important;
+}
+.ks-nav a.cta-button:hover {
+    color: white !important;
+}
+
+.form-group { margin-bottom: 1.5rem; }
+label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-dark); }
+input[type="text"], input[type="password"], textarea, input[type="search"], select {
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--bg-white);
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+    color: var(--text-dark);
+}
+input:focus, textarea:focus, select:focus {
+    outline: 2px solid var(--brand-blue);
+    border-color: var(--brand-blue);
+}
+
+/*-- 4. Main Layout & Other Components --*/
+main.codex-main {
+    max-width: 1200px !important;
+    margin: 2rem auto !important;
+    padding: 2rem !important;
+    background-color: var(--bg-white) !important;
+    border: none !important;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg) !important;
+}
+
+footer.ks-footer {
+    text-align: center;
+    padding: 2rem;
+    margin-top: 4rem;
+    background-color: #F9FAFB;
+    color: var(--text-light);
+    border-top: 1px solid var(--border-color);
+}
+footer.ks-footer a { color: var(--text-light); text-decoration: none; }
+footer.ks-footer a:hover { color: var(--text-dark); text-decoration: underline; }
+
+.alert {
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid;
+  border-radius: 4px;
+}
+.alert-success { background-color: #f0fdf4; border-color: #22c55e; color: #15803d; }
+.alert-danger { background-color: #fff1f2; border-color: #f43f5e; color: #be123c; }
+.alert-info { background-color: #eff6ff; border-color: #3b82f6; color: #1d4ed8; }
+.alert-warning { background-color: #fffbeb; border-color: #f59e0b; color: #b45309; }
+
+/*-- 5. Player Page Styles --*/
+/* FIX: Use 100dvh for true dynamic viewport height on mobile */
+body.player-body { background: #f0f2f5; height: 100dvh; overflow: hidden; }
+.guidelet-player-container { display: flex; width: 100%; height: 100%; position: relative; }
+.main-chat-area {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background: #f3f4f6;
+    
+    height: 100%; /* Occupy full height of the player container */
+    position: relative; /* THE FIX: Create a positioning context for the header */
+}
+.chat-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 1.5rem; background: var(--bg-white);
+    border-bottom: 1px solid var(--border-color);
+    /* THE FIX: Take header out of normal flow */
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    flex-shrink: 0;
+    transition: transform 0.3s ease-in-out; /* Revert to transform */
+}
+/* This class is added by JS to hide header on scroll */
+.chat-header.header-hidden {
+    transform: translateY(-100%); /* Revert to transform */
+}
+.chat-box {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 20px;
+    min-height: 0;
+    padding-top: 90px; /* Start with padding for the header */
+    transition: padding-top 0.3s ease-in-out; /* THE FIX: Animate the padding change */
+}
+.bottom-controls {
+    background: var(--bg-white);
+    padding: 10px 15px;
+    border-top: 1px solid var(--border-color);
+    flex-shrink: 0;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+}
+.message { margin-bottom: 15px; padding: 12px 18px; border-radius: 18px; max-width: 80%; line-height: 1.6; }
+.tutor-message { background-color: var(--bg-white); border: 1px solid var(--border-color); align-self: flex-start; float: left; clear: both; }
+.student-message { background-color: var(--brand-blue-dark); color: #fff; align-self: flex-end; float: right; clear: both; }
+.chat-input-container { display: flex; gap: 10px; }
+#qna-input {
+    flex-grow: 1; border: 1px solid var(--border-color); padding: 10px 15px;
+    border-radius: 20px; background-color: #f3f4f6;
+}
+#send-qna-btn {
+    border-radius: 50% !important; padding: 10px !important; line-height: 1 !important;
+    width: 44px; height: 44px; text-align: center;
+    background-color: var(--brand-blue-dark) !important;
+}
+#send-qna-btn:hover { background-color: #4A525A !important; }
+
+.chapter-nav-list { list-style: none; padding: 0; margin: 0; }
+.chapter-nav-item a { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; text-decoration: none; color: var(--text-light); border-radius: 8px; margin-bottom: 5px; transition: all 0.2s; font-weight: 500; }
+.chapter-nav-item a:hover { background-color: #f3f4f6; }
+.chapter-nav-item.active a { background-color: var(--brand-blue-dark); color: white; }
+.loading-spinner { border-top-color: var(--brand-blue-dark) !important; }
+
+body.dark-mode {
+    background-color: #121212;
+    color: #e2e8f0;
+}
+
+body.dark-mode h1, body.dark-mode h2, body.dark-mode h3, body.dark-mode h4, body.dark-mode h5, body.dark-mode h6 {
+    color: #f7fafc;
+}
+
+body.dark-mode a {
+    color: #63b3ed;
+}
+body.dark-mode a:hover {
+    color: #90cdf4;
+}
+
+body.dark-mode header.ks-header {
+    background-color: rgba(18, 18, 18, 0.8);
+    border-bottom-color: #2d3748;
+}
+
+body.dark-mode .ks-logo-container h1, body.dark-mode .ks-nav .nav-link, body.dark-mode .logout-button-as-link {
+    color: #e2e8f0 !important;
+}
+
+body.dark-mode .ks-nav .nav-link:hover, body.dark-mode .logout-button-as-link:hover {
+    background-color: #2d3748;
+}
+
+body.dark-mode .ks-nav .nav-link.active {
+    background-color: #4a5568;
+    color: white !important;
+}
+
+body.dark-mode main.codex-main,
+body.dark-mode .guidelet-card,
+body.dark-mode .user-card,
+body.dark-mode .card,
+body.dark-mode .stat-card,
+body.dark-mode .guidelet-item,
+body.dark-mode .item-card,
+body.dark-mode .create-guidelet-form { /* Added this form as well */
+    background-color: #1E1E1E !important;
+    border-color: #333333 !important;
+    box-shadow: none !important; /* Added to remove any lingering light-mode shadows */
+}
+
+body.dark-mode .inline-form { /* <--- ADD THIS SELECTOR */
+    background-color: #1E1E1E !important;
+    border-color: #333333 !important;
+    box-shadow: none !important;
+}
+
+body.dark-mode .hero-section {
+    background-color: #1E1E1E;
+}
+
+body.dark-mode .hero-content p, body.dark-mode .text-light, body.dark-mode .card-author {
+    color: #a0aec0;
+}
+
+body.dark-mode .user-card-stats .stat p {
+    color: #a0aec0;
+}
+
+body.dark-mode input[type="text"],
+body.dark-mode input[type="password"],
+body.dark-mode textarea,
+body.dark-mode input[type="search"],
+body.dark-mode select {
+    background-color: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+    color: #a0aec0;
+    opacity: 1;
+}
+
+body.dark-mode input:focus, body.dark-mode textarea:focus, body.dark-mode select:focus {
+    outline-color: #63b3ed;
+    border-color: #63b3ed;
+    background-color: #1E1E1E;
+}
+
+body.dark-mode .alert-success { background-color: #1c3d2a; border-color: #277c4a; color: #a7f3d0; }
+body.dark-mode .alert-danger { background-color: #4a2128; border-color: #c53030; color: #fed7d7; }
+
+/* Player dark mode */
+body.dark-mode.player-body { background-color: #121212; }
+body.dark-mode .main-chat-area { background-color: #121212; }
+body.dark-mode .chat-header { background-color: #1E1E1E; border-bottom-color: #333333; }
+body.dark-mode .bottom-controls { background-color: #1E1E1E; border-top-color: #333333; }
+body.dark-mode #qna-input { background-color: #2d3748; border-color: #4a5568; color: #e2e8f0; }
+body.dark-mode .tutor-message { background-color: #2d3748; border-color: #4a5568; }
+
+body.dark-mode .btn, body.dark-mode .cta-button, body.dark-mode main.codex-main button, body.dark-mode main.codex-main button[type="submit"], body.dark-mode main.codex-main .btn {
+    background-color: #4a5568 !important;
+    color: #f7fafc !important;
+    border: 1px solid #637081 !important;
+}
+body.dark-mode .btn:hover, body.dark-mode .cta-button:hover, body.dark-mode main.codex-main button:hover, body.dark-mode main.codex-main button[type="submit"]:hover, body.dark-mode main.codex-main .btn:hover {
+    background-color: #637081 !important;
+    border-color: #7a889c !important;
+}
+
+body.dark-mode .btn-secondary {
+    background: #2d3748 !important;
+    color: #cbd5e0 !important;
+    border: 1px solid #4a5568 !important;
+}
+body.dark-mode .btn-secondary:hover {
+    background: #4a5568 !important;
+    color: #f7fafc !important;
+}
+
+body.dark-mode .codex-editor {
+    background-color: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+body.dark-mode .codex-editor:focus-within {
+    border-color: #63b3ed;
+    background-color: #1E1E1E;
+}
+
+body.dark-mode footer.ks-footer {
+    background-color: #1E1E1E;
+    color: #a0aec0;
+    border-top-color: #333333;
+}
+body.dark-mode footer.ks-footer a {
+    color: #a0aec0;
+}
+body.dark-mode footer.ks-footer a:hover {
+    color: #e2e8f0;
+}
+
+/*-- -------------------------- --*/
+/*--   RESPONSIVE OVERRIDES     --*/
+/*-- -------------------------- --*/
+
+@media (max-width: 768px) {
+    header.ks-header {
+        position: static;
+        backdrop-filter: none;
+        background-color: var(--bg-white);
+    }
+
+    body.dark-mode header.ks-header {
+        background-color: #1E1E1E;
+    }
+}
+
+body.dark-mode .user-card {
+    background: #2d3748;
+    border-color: #4a5568;
+}
+
+body.dark-mode .user-card-info a,
+body.dark-mode .user-card-info h4 {
+    color: #f7fafc;
+}
+
+body.dark-mode .user-card-stats {
+    border-color: #4a5568;
+}
+
+body.dark-mode .user-card-stats .stat p,
+body.dark-mode .user-card-enrollments h6 {
+    color: #a0aec0;
+}
+
+body.dark-mode .user-dropdown-menu {
+    background-color: #2d3748;
+    border: 1px solid #4a5568;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+body.dark-mode .user-dropdown-menu a,
+body.dark-mode .user-dropdown-menu .dropdown-item-button {
+    color: #e2e8f0;
+}
+
+body.dark-mode .user-dropdown-menu a:hover,
+body.dark-mode .user-dropdown-menu .dropdown-item-button:hover {
+    background-color: #4a5568;
+    color: #f7fafc;
+}
+
+body.dark-mode .dropdown-divider {
+    background-color: #4a5568;
+}
+
+body.dark-mode.player-body {
+    background-color: #121212;
+}
+
+body.dark-mode .main-chat-area {
+    background-color: #121212;
+}
+
+body.dark-mode .chat-header,
+body.dark-mode .bottom-controls {
+    background-color: #1E1E1E;
+    border-color: #333333;
+}
+
+body.dark-mode #qna-input {
+    background-color: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+
+body.dark-mode .tutor-message {
+    background-color: #2d3748;
+    border-color: #4a5568;
+}
+
+body.dark-mode .student-message {
+    background-color: #4A5568 !important;
+    color: #f7fafc !important;
+}
+
+body.dark-mode .chapter-nav-item a {
+    color: #a0aec0;
+}
+
+body.dark-mode .chapter-nav-item a:hover {
+    background-color: #2d3748;
+}
+
+body.dark-mode .chapter-nav-item.active a {
+    background-color: #4a5568;
+    color: white;
+}
+
+.loading-spinner {
+    display: block;
+    margin: 20px auto;
+    width: 40px;
+    height: 40px;
+    border: 4px solid #e9ecef;
+    border-top-color: var(--brand-blue-dark);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+body.dark-mode .loading-spinner {
+    border-color: #4a5568;
+    border-top-color: #63b3ed;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.media-message {
+    padding: 5px;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* THE FIX: Add styles for images inside media messages */
+.media-message img {
+    display: block;          /* Ensure it's treated as a block element */
+    max-width: 100%;         /* Never be wider than the parent bubble */
+    height: auto;            /* Maintain aspect ratio */
+    border-radius: 12px;     /* Match theme's border radius */
+    cursor: pointer;         /* Indicate it's clickable for the lightbox */
+}
+
+/* This specifically targets the video element */
+.media-message video {
+    display: block;          /* Ensure it's treated as a block element */
+    width: 100%;             /* Make it responsive to its container's width */
+    max-width: 550px;        /* << THE IMPORTANT PART: Sets a max width for large screens */
+    height: auto;            /* Let the browser calculate height to maintain aspect ratio */
+    border-radius: 12px;     /* Match the theme's border radius for a clean look */
+}
+
+.card-thumbnail {
+        /* This container ensures the image has a consistent background */
+        background-color: #FFFFFF; /* A light gray background */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+     .card-thumbnail img {
+         width: 100%;
+         height: 450px;
+       object-fit: cover;
+        object-position: center top;
+     }
+
+
+/* --- NEW: Full-Width Game Message Styles --- */
+.game-message {
+    /* Override the default chat bubble constraints */
+    max-width: 100%;
+    float: none;
+    clear: both;
+
+    /* Remove bubble-specific styling for a seamless look */
+    padding: 10px 0; /* Add some vertical padding, but zero horizontal */
+    background-color: transparent;
+    border: none;
+    box-shadow: none; /* Remove any shadow if present */
+}
+
+/* The existing iframe styles for height transition remain the same */
+
+
+/* --- Adventure Map Styles (Updated for nesting) --- */
+
+.adventure-map-container {
+    /* Adjusted for nesting inside a list item */
+    margin-top: 15px;
+    padding: 10px 0 10px 15px; /* Add left padding for indentation */
+    border-top: 1px dashed var(--border-color);
+    /* Removed overflow-y and flex-grow as it's no longer a main sidebar section */
+}
+body.dark-mode .adventure-map-container {
+    border-top-color: #4a5568;
+}
+
+.adventure-map-title {
+    font-family: 'Poppins', sans-serif;
+    text-align: left; /* Align to the left now */
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.8rem; /* Make it smaller to feel like a sub-header */
+    font-weight: 600;
+    margin-bottom: 20px; /* Reduced bottom margin */
+}
+
+.adventure-map {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: relative;
+}
+
+/* The main, faint path line */
+.adventure-map::before {
+    content: '';
+    position: absolute;
+    left: 18px; /* This position is relative to the ul, which is now indented */
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background-color: #e9ecef;
+    border-radius: 2px;
+}
+body.dark-mode .adventure-map::before {
+    background-color: #2d3748;
+}
+
+.waypoint-item {
+    position: relative;
+    padding: 15px 0 15px 50px;
+    transition: all 0.3s ease;
+}
+
+.waypoint-icon {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    background-color: #f8f9fa;
+    border: 3px solid #dee2e6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+body.dark-mode .waypoint-icon {
+    background-color: #4a5568;
+    border-color: #637081;
+}
+
+.waypoint-label {
+    font-weight: 500;
+}
+
+/* --- State: Undiscovered (Upcoming) --- */
+.waypoint-item.undiscovered {
+    color: var(--text-light);
+    opacity: 0.6;
+}
+.waypoint-item.undiscovered .waypoint-label {
+    font-style: italic;
+}
+
+/* --- State: Conquered --- */
+.waypoint-item.conquered {
+    color: var(--text-dark);
+    opacity: 1;
+}
+.waypoint-item.conquered .waypoint-icon {
+    background-color: #28a745;
+    border-color: #1e7e34;
+    color: #ffffff;
+    font-size: 1.5rem;
+}
+body.dark-mode .waypoint-item.conquered .waypoint-icon {
+    background-color: #22c55e;
+    border-color: #16a34a;
+}
+.waypoint-item.conquered::before {
+    content: '';
+    position: absolute;
+    left: 18px;
+    top: -50%;
+    bottom: 50%;
+    width: 4px;
+    background-color: #28a745;
+    z-index: 1;
+}
+body.dark-mode .waypoint-item.conquered::before {
+    background-color: #22c55e;
+}
+
+/* --- State: Active --- */
+.waypoint-item.active .waypoint-icon {
+    background-color: var(--brand-blue-dark);
+    border-color: #fff;
+    color: #fff;
+    animation: pulse 1.5s infinite;
+}
+body.dark-mode .waypoint-item.active .waypoint-icon {
+    background-color: #63b3ed;
+    border-color: #1a1a1a;
+    color: #1a1a1a;
+}
+.waypoint-item.active .waypoint-label {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(98, 108, 119, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(98, 108, 119, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(98, 108, 119, 0); }
+}
+body.dark-mode @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(99, 179, 237, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(99, 179, 237, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(99, 179, 237, 0); }
+}
+
+/* --- NEW: Inline Note-Taking Styles --- */
+.message {
+    position: relative; /* Prerequisite for positioning the button */
+}
+
+.pin-note-btn {
+    position: absolute;
+    top: 50%;
+    right: -40px; /* Position it just outside the bubble */
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    font-size: 1.5rem; /* Makes the pin bigger */
+    cursor: pointer;
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.2s ease-in-out;
+}
+
+.student-message .pin-note-btn {
+    right: auto; /* Move to the left for student messages */
+    left: -40px;
+}
+
+.message:hover .pin-note-btn {
+    opacity: 0.5; /* Show on hover */
+}
+
+.pin-note-btn:hover {
+    opacity: 1 !important;
+}
+
+.inline-note-form {
+    display: none; /* Hidden by default */
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border-color);
+}
+
+.message.message-note-mode {
+    border: 2px solid var(--brand-blue-dark);
+}
+
+body.dark-mode .message.message-note-mode {
+    border-color: #63b3ed;
+}
+
+.message.message-note-mode .inline-note-form {
+    display: flex; /* Show the form */
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.inline-note-form input {
+    flex-grow: 1;
+    padding: 8px 12px;
+    border-radius: 6px;
+}
+
+.inline-note-form button {
+    padding: 8px !important;
+    border-radius: 6px !important;
+    min-width: 40px;
+}
+
+/* --- FIX: Dark Mode Notebook Page Styles --- */
+
+/* Fixes the white sidebar */
+body.dark-mode .notebook-sidebar {
+    background: #1E1E1E !important;
+    border-right-color: #333333 !important;
+}
+
+/* Fixes the text color of the list items in the sidebar */
+body.dark-mode .guidelet-list-item a {
+    color: #e2e8f0;
+}
+
+/* Fixes the hover background color for sidebar items */
+body.dark-mode .guidelet-list-item a:hover {
+    background-color: #2d3748;
+}
+
+/* Fixes the active item background and text color */
+body.dark-mode .guidelet-list-item.active a {
+    background-color: #4a5568;
+    color: #f7fafc;
+}
+
+/* Fixes the white note cards */
+body.dark-mode .note-card {
+    background: #2d3748 !important;
+    border-left-color: #63b3ed !important;
+}
+
+/* Fixes the inner "saved content" box inside the note card */
+body.dark-mode .note-card-saved-content {
+    background: #1E1E1E;
+    border-color: #4a5568;
+    color: #a0aec0;
+}
+
+/* Fixes the textarea for user comments inside the note card */
+body.dark-mode .note-card-user-thoughts textarea {
+    background-color: #2d3748;
+    color: #e2e8f0;
+}
+
+body.dark-mode .note-card-user-thoughts textarea:focus {
+    background-color: #1E1E1E;
+    border-color: #63b3ed;
+}
+
+/* Fixes the "View in Context" button */
+body.dark-mode .context-btn {
+    border-color: #4a5568;
+    color: #cbd5e0;
+}
+
+/* --- NEW: Game Modal Overlay Styles --- */
+#game-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 2000;
+    display: none; /* Hidden by default */
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+#game-modal-overlay.show {
+    display: flex; /* Show when active */
+}
+
+#game-modal-container {
+    width: 100%;
+    height: 100%;
+    max-width: 1200px; /* Or your preferred max width */
+    max-height: 90vh;  /* Limit height to 90% of viewport */
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    overflow: hidden; /* Ensures iframe corners are rounded */
+}
+
+#game-modal-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+#close-game-modal-btn {
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    background: rgba(0,0,0,0.5);
+    color: white;
+    border: 2px solid white;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    line-height: 36px;
+    cursor: pointer;
+    z-index: 2001;
+}
+
+/* --- FIX: For Chat Box Scrolling --- */
+.chat-box {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 20px;
+    min-height: 0;
+}
+
+/* --- NEW: Mobile UI Button Visibility --- */
+.show-on-mobile {
+    display: none !important; /* Hidden by default */
+}
+
+/* This is the dark overlay that appears behind the sidebar when it's open */
+#sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1999;
+}
+
+#sidebar-overlay.show {
+    display: block;
+}
+
+/* This rule makes the toggle button (☰) visible on all screen sizes */
+#toggle-sidebar-btn {
+    display: block;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-dark);
+    padding: 0.5rem;
+    border-radius: 8px;
+}
+
+body.dark-mode #toggle-sidebar-btn {
+    color: #e2e8f0;
+}
+
+/* This adjusts the lesson title to make room for the toggle button */
+.chat-header h2 {
+    margin-left: 40px;
+}
+
+/* THE FIX: Add styles for images inside media messages */
+.media-message img {
+    display: block;          /* Ensure it's treated as a block element */
+    max-width: 100%;         /* Never be wider than the parent bubble */
+    height: auto;            /* Maintain aspect ratio */
+    border-radius: 12px;     /* Match theme's border radius */
+    cursor: pointer;         /* Indicate it's clickable for the lightbox */
+}
+
+/* THE FIX: Add styles for images inside media messages */
+.media-message img {
+    display: block;          /* Ensure it's treated as a block element */
+    max-width: 100%;         /* Never be wider than the parent bubble */
+    height: auto;            /* Maintain aspect ratio */
+    border-radius: 12px;     /* Match theme's border radius */
+    cursor: pointer;         /* <-- ADD THIS LINE */
+}
+
+
+/* --- NEW: Image Modal (Lightbox) Styles --- */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 2000; /* Sit on top of everything else */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(18, 18, 18, 0.85); /* Dark background with opacity */
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content-wrapper {
+    position: relative;
+    margin: auto;
+    padding: 20px;
+    width: 90%;
+    max-width: 900px; /* Allow for larger images */
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.modal-content {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+    cursor: pointer;
+    z-index: 2001;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: #bbb;
+    text-decoration: none;
+}
+
+/* --- NEW: Image Magnifier (Loupe) Styles --- */
+.magnify-container {
+    position: relative; /* This container is essential for positioning the loupe */
+    display: inline-block; /* Prevents the container from taking full width */
+}
+
+.magnify-loupe {
+    position: absolute;
+    display: none; /* Hidden by default */
+    border: 3px solid var(--border-color);
+    border-radius: 50%; /* Makes it a circle */
+    width: 150px;
+    height: 150px;
+    background-repeat: no-repeat;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    /* This is crucial: it prevents the loupe from blocking mouse events on the image underneath */
+    pointer-events: none;
+    z-index: 10;
+
+}
+
+body.dark-mode .magnify-loupe {
+    border-color: #4a5568;
+}
+
+
+/* --- NEW: Mobile-First Player UI Overrides (v2) --- */
+
+/* On desktop, hide the new mobile-only button container */
+@media (min-width: 769px) {
+    #lesson-view-controls, #qna-view-controls {
+        width: 100%;
+    }
+    #ask-question-btn-mobile, #back-to-lesson-btn-mobile {
+        display: none !important;
+    }
+}
+
+/* Styles for mobile screens */
+@media (max-width: 768px) {
+    /* Hide the title header and reposition the toggle button */
+    .chat-header { display: none !important; }
+    .chat-box { padding-top: 20px !important; padding-bottom: 20px !important; }
+    #toggle-sidebar-btn {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 1500;
+        background-color: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(5px);
+        border: 1px solid var(--border-color);
+    }
+    body.dark-mode #toggle-sidebar-btn {
+        background-color: rgba(30, 30, 30, 0.8);
+        border-color: #333;
+    }
+
+    /* --- Side-by-Side Button Layout --- */
+    /* This rule targets the container holding the "Continue" and "Ask" buttons */
+    #lesson-view-controls {
+    display: flex; /* This is the key: the parent is now the flex container */
+    gap: 10px;
+    width: 100%;
+}
+
+/* "Ask a Question" button takes up 1 part of the space */
+#lesson-view-controls #ask-question-btn-mobile {
+    flex: 1;
+}
+
+/* The wrapper for "Continue" takes up 2 parts, making it wider */
+#lesson-view-controls #input-area {
+    flex: 2;
+    display: flex; /* This ensures the button inside fills the space */
+}
+
+/* This makes the actual "Continue" button fill its container */
+#lesson-view-controls #input-area > .btn {
+    width: 100%;
+}
+
+    /* --- Logic for showing/hiding views --- */
+    .bottom-controls .hidden {
+        display: none;
+    }
+    #qna-view-controls {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+    }
+    .bottom-controls.mobile-chat-active #lesson-view-controls {
+        display: none;
+    }
+    .bottom-controls:not(.mobile-chat-active) #qna-view-controls {
+        display: none;
+    }
+}
+
+/*-- 5. Player Page Styles --*/
+/* FIX: Use 100dvh for true dynamic viewport height on mobile */
+body.player-body { background: #f0f2f5; height: 100dvh; overflow: hidden; }
+.guidelet-player-container { display: flex; width: 100%; height: 100%; position: relative; }
+.main-chat-area {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background: #f3f4f6;
+    height: 100%;
+    position: relative; 
+}
+.chat-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 1.5rem; background: var(--bg-white);
+    border-bottom: 1px solid var(--border-color);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    flex-shrink: 0;
+    transition: transform 0.3s ease-in-out;
+}
+/* This class is added by JS to hide header on scroll */
+.chat-header.header-hidden {
+    transform: translateY(-100%);
+}
+.chat-box {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 20px;
+    min-height: 0;
+    padding-top: 90px; /* Default padding for when header is visible */
+    transition: padding-top 0.3s ease-in-out; /* Smoothly animate the padding change */
+}
+
+/* THIS IS THE NEW RULE THAT FIXES THE FLICKER */
+/* It reduces the top padding when the header is hidden */
+.chat-header.header-hidden + .chat-box {
+    padding-top: 10px;
+}
+
+.bottom-controls {
+    background: var(--bg-white);
+    padding: 15px;
+    border-top: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+/* --- NEW: Full-Width Game Message Styles --- */
+.game-message {
+    /* Override the default chat bubble constraints */
+    max-width: 100%;
+    float: none;
+    clear: both;
+
+    /* Remove bubble-specific styling for a seamless look */
+    padding: 10px 0; /* Add some vertical padding, but zero horizontal */
+    background-color: transparent;
+    border: none;
+    box-shadow: none; /* Remove any shadow if present */
+}
+
+/* --- FIX FOR GAME IFRAME WIDTH --- */
+.message.game-message {
+
+    width: 100%;
+    padding: 0;
+    margin-top: 10px;
+    margin-bottom: 10px;
+
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.message.game-message iframe {
+    width: 100%;
+    height: 150px; /* Start with a small initial height */
+     border: none;
+     border-radius: 12px;
+    transition: height 0.35s ease-in-out;
+    border: none;
+    border-radius: 12px;
+}
+
+/*-- -------------------------- --*/
+/*--   RESPONSIVE OVERRIDES     --*/
+/*-- -------------------------- --*/
+
+@media (max-width: 768px) {
+    header.ks-header {
+        position: static;
+        backdrop-filter: none;
+        background-color: var(--bg-white);
+        /* VVV THIS IS THE NEWLY ADDED CODE VVV */
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1rem;
+    }
+
+    nav.ks-nav {
+        flex-direction: column;
+        width: 100%;
+        margin-top: 1rem;
+    }
+
+    .ks-nav a, .ks-nav .user-dropdown {
+        margin-bottom: 0.5rem;
+        width: 100%;
+    }
+
+    .user-dropdown-menu {
+        position: static; /* Make dropdown full width */
+    }
+
+    body.dark-mode header.ks-header {
+        background-color: #1E1E1E;
+    }
+
+    /* --- ADD THIS SNIPPET FOR THE PLAYER HEADER --- */
+    .chat-header {
+        /* Reduce vertical padding to make it shorter */
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+    }
+    .chat-header h2 {
+        /* Slightly reduce the font size of the chapter title */
+        font-size: 1rem;
+    }
+    /* --- END OF SNIPPET --- */
+
+    .bottom-controls {
+        /* This is the key: it adds extra space at the bottom */
+        /* It uses calc() to add 15px to the default iOS safe area, */
+        /* ensuring it works on iPhones and Androids alike. */
+        padding-bottom: calc(15px + env(safe-area-inset-bottom));
+    }
+}
+
+/* --- NEW: Image Modal (Lightbox) Styles --- */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 2000; /* Sit on top of everything else */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(18, 18, 18, 0.85); /* Dark background with opacity */
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content-wrapper {
+    position: relative;
+    margin: auto;
+    padding: 20px;
+    width: 90%;
+    max-width: 900px; /* Allow for larger images */
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.modal-content {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+    cursor: pointer;
+    z-index: 2001;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: #bbb;
+    text-decoration: none;
+}

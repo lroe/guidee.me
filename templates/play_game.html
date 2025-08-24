@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ game.title }}</title>
+    <style>
+        /* Resets to ensure the game content determines the document height */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto; 
+        }
+
+        /* This will inject the specific CSS you wrote for this game */
+        {{ game.css_content | safe }}
+    </style>
+</head>
+<body>
+    <!-- This will inject the HTML structure you wrote for this game -->
+    {{ game.html_content | safe }}
+
+   
+</body>
+</html>

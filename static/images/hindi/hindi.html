@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Conversation Game</title>
+    <style>
+        /* --- 1. CORE & FONT STYLES --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+        :root {
+            --bg-color: #fdf6e3;
+            --bubble-bg: #fff7e6;
+            --border-color: #f4c542;
+            --text-color: #333;
+            --correct-color: #28a745;
+            --incorrect-color: #dc3545;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* --- 2. GAME & CHARACTER STYLES --- */
+        .game-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            height: 400px;
+            border: 3px solid var(--border-color);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            background: url('https://res.cloudinary.com/dltx0ursv/image/upload/v1754402491/game_assets/background.png') no-repeat center center/cover;
+        }
+
+        .character {
+            position: absolute;
+            bottom: 0;
+            height: 350px;
+            width: auto;
+            transform: translateY(6%);
+        }
+
+        #girl {
+            left: 0;
+            transform: translateY(8%) translateX(-20%) scale(1.5);
+        }
+
+        #boy {
+            right: 0;
+            transform: translateY(0%) translateX(20%) scale(1.3);
+        }
+
+        /* --- 3. SPEECH BUBBLE & TRIANGLE FIX --- */
+        .chat-box {
+            position: absolute;
+            top: 20px;
+            background-color: var(--bubble-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
+            padding: 15px 20px;
+            width: 55%;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .from-girl {
+            left: 40px;
+        }
+
+        .from-boy {
+            right: 40px;
+        }
+        
+        .chat-box::after, .chat-box::before {
+            content: "";
+            position: absolute;
+            width: 0;
+            height: 0;
+        }
+
+        .from-girl::after {
+            bottom: -22px;
+            left: 25px;
+            border-left: 16px solid transparent;
+            border-right: 16px solid transparent;
+            border-top: 20px solid var(--border-color);
+            z-index: 0;
+        }
+
+        .from-girl::before {
+            bottom: -18px;
+            left: 27px;
+            border-left: 14px solid transparent;
+            border-right: 14px solid transparent;
+            border-top: 18px solid var(--bubble-bg);
+            z-index: 1;
+        }
+
+        .from-boy::after {
+            bottom: -22px;
+            right: 25px;
+            border-left: 16px solid transparent;
+            border-right: 16px solid transparent;
+            border-top: 20px solid var(--border-color);
+            z-index: 0;
+        }
+
+        .from-boy::before {
+            bottom: -18px;
+            right: 27px;
+            border-left: 14px solid transparent;
+            border-right: 14px solid transparent;
+            border-top: 18px solid var(--bubble-bg);
+            z-index: 1;
+        }
+
+        /* --- 4. OPTIONS & FEEDBACK --- */
+        .options-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .option-btn {
+            background-color: var(--bubble-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #ffeaa7;
+            transform: translateY(-2px);
+        }
+        
+        .option-btn.correct {
+            background-color: #d4edda;
+            border-color: var(--correct-color);
+            color: #155724;
+        }
+        
+        .option-btn.incorrect {
+            background-color: #f8d7da;
+            border-color: var(--incorrect-color);
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- The images are now directly in the HTML -->
+        <img src="https://res.cloudinary.com/dltx0ursv/image/upload/v1754402287/game_assets/aswathy.png" alt="Girl" class="character" id="girl">
+        <img src="https://res.cloudinary.com/dltx0ursv/image/upload/v1754402345/game_assets/kishore2.png" alt="Boy" class="character" id="boy">
+        
+        <div class="chat-box" id="chat-box">
+            <p id="dialogue-text"></p>
+        </div>
+    </div>
+    <div class="options-container" id="options-container"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const conversationFlow = [
+                {
+                    speaker: 'Girl',
+                    dialogue: 'आपका नाम क्या है? (What is your name?)',
+                    options: [
+                        'मैं दिल्ली से हूं। (Main Dilli se hoon)',
+                        'मेरा नाम किशोर है। (Mera naam Kishore hai)',
+                        'मैं खाना खाता हूं। (Main khaana khaata hoon)'
+                    ],
+                    correctAnswer: 'मेरा नाम किशोर है। (Mera naam Kishore hai)'
+                },
+                {
+                    speaker: 'Boy',
+                    dialogue: 'मेरा नाम किशोर है। (Mera naam Kishore hai)',
+                    options: [] // No options means it's a statement
+                },
+                {
+                    speaker: 'Boy',
+                    dialogue: 'आप कैसी हैं? (How are you?)',
+                    options: [
+                        'मैं ठीक हूँ, धन्यवाद! (Main theek hoon, dhanyavaad!)',
+                        'यह एक किताब है. (Yeh ek kitaab hai)',
+                        'आज मौसम अच्छा है. (Aaj mausam achha hai)'
+                    ],
+                    correctAnswer: 'मैं ठीक हूँ, धन्यवाद! (Main theek hoon, dhanyavaad!)'
+                },
+                {
+                    speaker: 'Girl',
+                    dialogue: 'मैं ठीक हूँ, धन्यवाद! (Main theek hoon, dhanyavaad!)',
+                    options: []
+                }
+            ];
+
+            const chatBox = document.getElementById('chat-box');
+            const dialogueText = document.getElementById('dialogue-text');
+            const optionsContainer = document.getElementById('options-container');
+            let currentStepIndex = 0;
+
+            function showStep(index) {
+                const step = conversationFlow[index];
+                
+                // Set speaker
+                chatBox.className = 'chat-box'; // Reset classes
+                if (step.speaker === 'Girl') {
+                    chatBox.classList.add('from-girl');
+                } else {
+                    chatBox.classList.add('from-boy');
+                }
+                
+                dialogueText.innerHTML = `<strong>${step.speaker}:</strong> ${step.dialogue}`;
+                optionsContainer.innerHTML = '';
+
+                if (step.options && step.options.length > 0) {
+                    step.options.forEach(optionText => {
+                        const button = document.createElement('button');
+                        button.className = 'option-btn';
+                        button.textContent = optionText;
+                        button.onclick = () => handleOptionSelect(optionText, step.correctAnswer);
+                        optionsContainer.appendChild(button);
+                    });
+                } else {
+                    setTimeout(() => {
+                        currentStepIndex++;
+                        if (currentStepIndex < conversationFlow.length) {
+                            showStep(currentStepIndex);
+                        } else {
+                            endGame();
+                        }
+                    }, 2500);
+                }
+            }
+
+            function handleOptionSelect(selectedText, correctAnswer) {
+                const buttons = optionsContainer.querySelectorAll('.option-btn');
+                buttons.forEach(btn => btn.disabled = true);
+
+                if (selectedText === correctAnswer) {
+                    buttons.forEach(btn => {
+                        if (btn.textContent === selectedText) btn.classList.add('correct');
+                    });
+
+                    setTimeout(() => {
+                        currentStepIndex++;
+                        if (currentStepIndex < conversationFlow.length) {
+                            showStep(currentStepIndex);
+                        } else {
+                            endGame();
+                        }
+                    }, 1500);
+                } else {
+                    buttons.forEach(btn => {
+                        if (btn.textContent === selectedText) btn.classList.add('incorrect');
+                    });
+
+                    setTimeout(() => {
+                        buttons.forEach(btn => {
+                            btn.disabled = false;
+                            btn.classList.remove('incorrect');
+                        });
+                    }, 2000);
+                }
+            }
+
+            function endGame() {
+                chatBox.className = 'chat-box';
+                dialogueText.innerHTML = `<strong style="color: ${'var(--correct-color)'};">Challenge Complete!</strong>`;
+                optionsContainer.innerHTML = '';
+                
+                // CRITICAL: This message tells the lesson player that the game is over.
+                window.parent.postMessage('game_complete', '*');
+            }
+
+            showStep(currentStepIndex);
+        });
+    </script>
+</body>
+</html>

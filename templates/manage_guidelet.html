@@ -1,0 +1,421 @@
+{% extends "base.html" %}
+{% block title %}Manage Guidelet{% endblock %}
+
+{% block styles %}
+{{ super() }}
+{# NEW: CSS for month boundary labels #}
+<style>
+.chart-container {
+    position: relative; /* This is crucial for absolute positioning of markers */
+    height:40vh; 
+    width:80vw; 
+    max-width: 900px;
+}
+.month-label {
+    position: absolute;
+    top: -20px; /* Position above the chart */
+    font-size: 12px;
+    font-weight: bold;
+    color: #555;
+    border-left: 2px solid #ccc;
+    padding-left: 5px;
+    transform: translateX(-50%); /* Center the label over the tick */
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+    <div class="page-header">
+        <a href="{{ url_for('creator_dashboard') }}" class="back-link">← Back to Guidelet Studio</a>
+        <h1>Manage: {{ guidelet.title }}</h1>
+        <a href="{{ url_for('guidelet_player', guidelet_id=guidelet.id) }}" class="btn btn-secondary">Preview</a>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-link active" onclick="openTab(event, 'chapters')">Chapters</button>
+        <button class="tab-link" onclick="openTab(event, 'details')">Details & Persona</button>
+        {# NEW: Analytics Tab #}
+        <button class="tab-link" onclick="openTab(event, 'analytics')">Analytics</button>
+        <button class="tab-link" onclick="openTab(event, 'publishing')">Publishing</button>
+    </div>
+
+    <div id="chapters" class="tab-content active">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h2>Chapters <span class="drag-hint">(You can drag and drop to re-order)</span></h2>
+            <a href="{{ url_for('add_chapter_page', guidelet_id=guidelet.id) }}" class="btn btn-primary">Add New Chapter</a>
+        </div>
+
+        {% if guidelet.lessons %}
+            <ul id="chapter-list-sortable" class="chapter-list">
+                {% for chapter in guidelet.lessons %}
+                    <li class="chapter-item" data-id="{{ chapter.id }}">
+                        <span class="drag-handle">☰</span>
+                        <span class="chapter-number">Chapter {{ chapter.chapter_number }}</span>
+                        <span class="chapter-title">{{ chapter.title }}</span>
+                        <div class="chapter-actions">
+                            <a href="{{ url_for('edit_chapter_page', lesson_id=chapter.id) }}" class="btn btn-secondary">Edit</a>
+                            <form action="{{ url_for('delete_chapter', lesson_id=chapter.id) }}" method="post" style="display: inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to permanently delete this chapter? This action cannot be undone.');">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>This guidelet has no chapters yet. Add your first one!</p>
+        {% endif %}
+    </div>
+
+    <div id="details" class="tab-content">
+        <h3>Guidelet Details</h3>
+        <form action="{{ url_for('update_guidelet_details', guidelet_id=guidelet.id) }}" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label for="title">Guidelet Title</label>
+                <input type="text" name="title" id="title" required value="{{ guidelet.title }}">
+            </div>
+            <div class="form-group">
+                <label for="description">Guidelet Description</label>
+                <p style="margin-top: -5px; margin-bottom: 10px; font-size: 0.9rem; color: #555;">
+                    Briefly describe what students will learn in this guidelet. You can use HTML tags like <b> for bold, <i> for italic, and <ul>/<li> for lists to format the text.
+                </p>
+                <textarea name="description" id="description" rows="10" placeholder="e.g., In this guidelet, you will learn the basics of Python programming...">{{ guidelet.description or '' }}</textarea>
+            </div>
+
+            <hr class="section-divider">
+
+            <div class="form-group">
+                <label for="thumbnail">Guidelet Thumbnail Image</label>
+                {% if guidelet.thumbnail_url %}
+                    <img src="{{ guidelet.thumbnail_url }}" alt="Current thumbnail" style="max-width: 200px; display: block; margin-bottom: 10px; border-radius: 5px;">
+                {% endif %}
+                <input type="file" name="thumbnail" id="thumbnail" accept="image/*">
+            </div>
+            
+            <hr class="section-divider">
+
+            <div class="form-group">
+                <label>Manage Guidelet Notes (PDFs)</label>
+                
+                <!-- Logic for existing notes -->
+                {% if guidelet.notes %}
+                    <p>Current Notes:</p>
+                    {% for note in guidelet.notes %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="remove_note" value="{{ note.id }}" id="remove_note_{{ note.id }}">
+                        <label class="form-check-label" for="remove_note_{{ note.id }}">
+                            Remove: <a href="{{ note.url }}" target="_blank">{{ note.title }}</a>
+                        </label>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Logic for adding new notes -->
+                <div id="new-notes-container" style="margin-top: 15px;">
+                    <!-- New note inputs will be added here by JS -->
+                </div>
+                <button type="button" id="add-note-btn" class="btn btn-secondary" style="margin-top: 10px;">Add Another Note</button>
+            </div>
+
+            <hr class="section-divider">
+
+            <button type="submit" class="btn">Update Details</button>
+        </form>
+    </div>
+
+    {# MODIFIED: Analytics Content #}
+    <div id="analytics" class="tab-content">
+        <h3>Watch Time Analytics ({{ date_range_label }})</h3>
+        <p>This chart shows the total time all students spent on this guidelet each day. Weekends are highlighted with a lighter color.</p>
+        <div class="chart-container">
+            <canvas id="watchTimeChart"></canvas>
+        </div>
+    </div>
+
+    <div id="publishing" class="tab-content">
+        <h3>Publishing Status</h3>
+        <div class="guidelet-status-display" style="margin-bottom: 2rem;">
+            <p><strong>Current Status:</strong> 
+                <span class="status-badge status-{{ guidelet.status }}">
+                    {{ guidelet.status.replace('_', ' ')|title }}
+                </span>
+            </p>
+            
+            {% if guidelet.status == 'draft' or guidelet.status == 'rejected' %}
+                <form action="{{ url_for('submit_for_review', guidelet_id=guidelet.id) }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    {% if guidelet.lessons %}
+                        <button type="submit" class="btn btn-primary">Submit for Review</button>
+                    {% else %}
+                        <button type="button" class="btn btn-secondary" disabled title="Add at least one chapter before submitting.">
+                            Submit for Review
+                        </button>
+                    {% endif %}
+                </form>
+                 {% if guidelet.status == 'rejected' %}
+                    <p style="color: #a94442; margin-top: 10px;">
+                        This guidelet was returned by the review team. Please address the feedback and resubmit.
+                    </p>
+                {% endif %}
+            {% elif guidelet.status == 'pending_review' %}
+                <p>This guidelet is currently awaiting review by an administrator.</p>
+            {% elif guidelet.status == 'published' %}
+                <p>This guidelet is live on the site!</p>
+                <form action="{{ url_for('unpublish_guidelet', guidelet_id=guidelet.id) }}" method="post">
+                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                     <button type="submit" class="btn btn-secondary">Unpublish (Return to Draft)</button>
+                </form>
+            {% endif %}
+        </div>
+
+        {% if guidelet.status == 'draft' %}
+            <div style="margin-bottom: 2rem;">
+                <strong>Share your private guidelet:</strong>
+                {% if guidelet.shareable_link_id %}
+                    <p>Anyone with this link can view your guidelet details and enroll:</p>
+                    <input type="text" readonly value="{{ url_for('shared_guidelet_view', link_id=guidelet.shareable_link_id, _external=True) }}">
+                {% else %}
+                    <form action="{{ url_for('generate_share_link', guidelet_id=guidelet.id) }}" method="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-secondary">Generate Private Link</button>
+                    </form>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <hr class="section-divider">
+
+        <h3>Danger Zone</h3>
+        <div class="danger-zone-content" style="background: #f2dede; border: 1px solid #ebccd1; padding: 20px; border-radius: 5px;">
+            {% if current_user.is_admin %}
+                <p style="margin-top: 0;"><strong>Admin Actions</strong></p>
+                <p>As an admin, you can unpublish or permanently delete this guidelet.</p>
+                <form action="{{ url_for('unpublish_guidelet', guidelet_id=guidelet.id) }}" method="post" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure you want to unpublish this guidelet as an admin? It will be returned to a draft state.');">Admin Unpublish</button>
+                </form>
+                <form action="{{ url_for('admin_delete_guidelet', guidelet_id=guidelet.id) }}" method="post" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('ADMIN ACTION: Are you absolutely sure you want to PERMANENTLY DELETE this guidelet? This action is irreversible.');">
+                        Admin Delete
+                    </button>
+                </form>
+            {% else %}
+                <p style="margin-top: 0;"><strong>Delete this guidelet</strong></p>
+                <p>Once you delete a guidelet, there is no going back. All chapters, enrollments, and reviews will be permanently deleted. Please be certain.</p>
+                <form action="{{ url_for('delete_guidelet', guidelet_id=guidelet.id) }}" method="post" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you absolutely sure you want to delete this guidelet? This action is irreversible.');">
+                        Delete Guidelet Permanently
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <style>
+        .status-badge { padding: 5px 10px; border-radius: 15px; color: white; font-weight: bold; text-transform: uppercase; font-size: 0.8em; }
+        .status-draft { background-color: #777; }
+        .status-pending_review { background-color: #f0ad4e; }
+        .status-published { background-color: #5cb85c; }
+        .status-rejected { background-color: #d9534f; }
+    </style>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@latest"></script>
+
+<script>
+    function openTab(evt, tabName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tab-link");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+
+        if (tabName === 'analytics') {
+            setTimeout(function() {
+                renderWatchTimeChart();
+            }, 0);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const chapterList = document.getElementById('chapter-list-sortable');
+        if (chapterList) {
+            new Sortable(chapterList, {
+                animation: 150,
+                handle: '.drag-handle',
+                onEnd: function (evt) {
+                    const chapterIds = [];
+                    for (const item of chapterList.children) {
+                        chapterIds.push(item.dataset.id);
+                    }
+                    
+                    const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+
+                    fetch(`/guidelet/{{ guidelet.id }}/reorder_chapters`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken 
+                        },
+                        body: JSON.stringify({ order: chapterIds }),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.reload();
+                        } else {
+                            alert('Could not save the new order. Please try again.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while saving the new order.');
+                    });
+                }
+            });
+        }
+
+        // --- NEW: JavaScript for adding multiple note fields ---
+        const addNoteBtn = document.getElementById('add-note-btn');
+        const newNotesContainer = document.getElementById('new-notes-container');
+
+        if (addNoteBtn) {
+            addNoteBtn.addEventListener('click', () => {
+                const noteEntry = document.createElement('div');
+                noteEntry.classList.add('note-entry', 'mb-2');
+                noteEntry.style.display = 'flex';
+                noteEntry.style.gap = '10px';
+                noteEntry.innerHTML = `
+                    <input type="text" name="new_note_title" class="form-control" placeholder="Note Title (e.g., Module 1)" required>
+                    <input type="file" name="new_notes_pdf" class="form-control" accept=".pdf" required>
+                    <button type="button" class="btn btn-danger remove-note-btn">×</button>
+                `;
+                newNotesContainer.appendChild(noteEntry);
+
+                noteEntry.querySelector('.remove-note-btn').addEventListener('click', function() {
+                    this.parentElement.remove();
+                });
+            });
+        }
+
+        let watchTimeChartInstance = null;
+        // Make render function available globally so onclick can find it
+        window.renderWatchTimeChart = function() { 
+            if (watchTimeChartInstance) {
+                return; 
+            }
+            const ctx = document.getElementById('watchTimeChart').getContext('2d');
+            
+            // --- THIS IS THE FIX ---
+            // The chartjs-plugin-annotation script registers itself automatically.
+            // The manual registration line is not needed and causes the error.
+            // Chart.register(ChartjsPluginAnnotation);  <-- DELETE OR COMMENT OUT THIS LINE
+            // --- END OF FIX ---
+
+            function formatSecondsForChart(seconds) {
+                if (seconds < 60) return `${seconds}s`;
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+                if (minutes < 60) return `${minutes}m ${remainingSeconds}s`;
+                const hours = Math.floor(minutes / 60);
+                const remainingMinutes = minutes % 60;
+                return `${hours}h ${remainingMinutes}m`;
+            }
+            
+            const monthLabelsData = {{ month_labels|tojson|safe }};
+            const annotations = {};
+            monthLabelsData.forEach(marker => {
+                annotations[`line${marker.position}`] = {
+                    type: 'line',
+                    xMin: marker.position,
+                    xMax: marker.position,
+                    borderColor: 'rgba(0, 0, 0, 0.2)',
+                    borderWidth: 1,
+                    borderDash: [6, 6],
+                    label: {
+                        content: marker.label,
+                        enabled: true,
+                        position: 'start',
+                        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                        color: '#555',
+                        font: {
+                            weight: 'bold'
+                        }
+                    }
+                }
+            });
+
+            watchTimeChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: {{ chart_labels|tojson|safe }},
+                    datasets: [{
+                        label: 'Watch Time',
+                        data: {{ chart_values|tojson|safe }},
+                        backgroundColor: {{ background_colors|tojson|safe }},
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value, index, values) {
+                                    return formatSecondsForChart(value);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += formatSecondsForChart(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        },
+                        annotation: {
+                            annotations: annotations
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

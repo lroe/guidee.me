@@ -1,0 +1,190 @@
+/* static/css/reader_theme.css */
+@import url('https://fonts.googleapis.com/css2?family=Spectral:wght@400;600&family=Inter:wght@400;500;700&display=swap');
+
+:root {
+    --bg-paper: #F9F5E3; /* Warm, paper-like background */
+    --text-main: #3E2D1C; /* Soft, dark brown-black */
+    --brand-primary: #8B5A2B; /* A sophisticated, warm brown for accents */
+    --border-color: #DBC9A2; /* Parchment-like border color */
+    --sidebar-bg: #C1A884; /* A darker, binding-like color */
+    --student-bubble-bg: #EFE8D4; /* A slightly different shade for the student */
+}
+
+/* --- Core Player Body --- */
+body.player-body.theme-reader {
+    background-color: var(--bg-paper);
+    font-family: 'Inter', sans-serif; /* Clean sans-serif for UI */
+    color: var(--text-main);
+}
+
+.theme-reader h1, .theme-reader h2, .theme-reader h3 {
+    font-family: 'Spectral', serif;
+}
+
+/* --- Main Layout --- */
+.theme-reader .guidelet-player-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+/* --- Sidebar --- */
+.theme-reader .sidebar {
+    width: 320px;
+    background: var(--sidebar-bg);
+    border-right: 3px solid #5C4A2E; /* Darker border for contrast */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: inset -5px 0 15px rgba(0,0,0,0.1);
+    overflow-y: auto;
+}
+
+.theme-reader .sidebar h3 {
+    color: #3E2D1C;
+    border-bottom: 2px solid #6C5A3E;
+    padding-bottom: 10px;
+}
+
+.theme-reader .chapter-nav-list a {
+    color: #4E3928;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+.theme-reader .chapter-nav-list a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+.theme-reader .chapter-nav-item.active a {
+    background-color: var(--bg-paper);
+    color: var(--text-main);
+    font-weight: bold;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+    border: 1px solid var(--border-color);
+}
+.theme-reader .chapter-nav-item.completed a {
+    color: #6c5a3e;
+    opacity: 0.7;
+}
+
+/* --- Main Chat Area --- */
+.theme-reader .main-chat-area {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-paper);
+}
+
+.theme-reader .chat-header {
+    display: none; /* Hide header on all screens for this theme */
+}
+
+/* Always show toggle button */
+.theme-reader #toggle-sidebar-btn {
+    display: block;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1500;
+    background: var(--sidebar-bg);
+    border: 2px solid #5C4A2E;
+    color: var(--text-main);
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    font-size: 1.2rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+
+.theme-reader .chat-box {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 20px 40px;
+    font-family: 'Spectral', serif; /* Serif font for reading */
+    font-size: 1.1rem;
+    line-height: 1.7;
+}
+
+/* --- Chat Bubbles --- */
+.theme-reader .message {
+    padding: 12px 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    max-width: 85%;
+}
+
+.theme-reader .tutor-message {
+    background-color: #fff; /* White for high contrast */
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+}
+
+.theme-reader .student-message {
+    background-color: var(--student-bubble-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+}
+
+/* --- Bottom Controls & Buttons --- */
+.theme-reader .bottom-controls {
+    background: transparent;
+    border-top: 2px solid var(--border-color);
+    padding: 15px;
+}
+
+.theme-reader .btn {
+    background: transparent !important;
+    color: var(--brand-primary) !important;
+    border: 2px solid var(--border-color) !important;
+    border-radius: 8px !important;
+    font-weight: 500 !important;
+    font-family: 'Inter', sans-serif !important;
+}
+
+.theme-reader .btn:hover {
+    background: var(--student-bubble-bg) !important;
+    border-color: var(--brand-primary) !important;
+}
+
+.theme-reader .btn-primary {
+    background: var(--brand-primary) !important;
+    color: white !important;
+    border-color: var(--brand-primary) !important;
+}
+.theme-reader .btn-primary:hover {
+    background: #754c24 !important; /* Darker brown */
+    border-color: #754c24 !important;
+}
+
+.theme-reader #qna-input {
+    background-color: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+}
+.theme-reader #qna-input:focus {
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 3px rgba(139, 90, 43, 0.2);
+    outline: none;
+}
+
+.theme-reader #send-qna-btn {
+    background-color: var(--brand-primary) !important;
+    color: white !important;
+}
+
+/* Mobile layout from previous step */
+@media (max-width: 768px) {
+    #lesson-view-controls {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+    }
+    #lesson-view-controls #ask-question-btn-mobile { flex: 1; }
+    #lesson-view-controls #input-area { flex: 2; display: flex; }
+    #lesson-view-controls #input-area > .btn { width: 100%; }
+    
+    .bottom-controls .hidden { display: none; }
+    #qna-view-controls { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+    .bottom-controls.mobile-chat-active #lesson-view-controls { display: none; }
+    .bottom-controls:not(.mobile-chat-active) #qna-view-controls { display: none; }
+}

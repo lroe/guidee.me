@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Your Dashboard{% endblock %}
+
+{% block content %}
+<style>
+    .dashboard-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .xp-display {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #ffc107; /* A gold color for XP */
+    }
+    .guidelet-card {
+        background-color: #fff;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .guidelet-card h3 {
+        margin-top: 0;
+    }
+    .progress-bar {
+        width: 100%;
+        background-color: #e9ecef;
+        border-radius: .25rem;
+        height: 1rem;
+        margin-top: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    .progress-bar-fill {
+        background-color: #0d6efd;
+        height: 100%;
+        border-radius: .25rem;
+    }
+    .notification-item {
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #dee2e6;
+    }
+    .notification-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    .notification-item p {
+        margin: 0;
+    }
+    .notification-item .timestamp {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+</style>
+
+ <div class="dashboard-header">
+     <h2>Welcome back, {{ current_user.username }}!</h2>
+     <p class="xp-display">You have {{ current_user.xp or 0 }} XP</p>
+    {% if current_user.streak_count and current_user.streak_count > 0 %}
+        <p class="streak-display">{{ current_user.streak_count }} Day Streak 🔥</p>
+    {% endif %}
+ </div>
+<!-- Tabs -->
+<div class="tabs">
+    <button class="tab-link active" onclick="openTab(event, 'MyShelf')">My Shelf</button>
+    <button class="tab-link" onclick="openTab(event, 'LearnerCircle')">Learner Circle</button>
+</div>
+
+<!-- Tab Content -->
+<div id="MyShelf" class="tab-content active">
+    <h3>My Enrolled Guidelets</h3>
+    {% if enrollments %}
+        {% for enrollment in enrollments %}
+            <div class="guidelet-card">
+                <h4>{{ enrollment.guidelet.title }}</h4>
+                <p class="text-muted">By <a href="{{ url_for('user_profile', username=enrollment.guidelet.creator.username) }}">{{ enrollment.guidelet.creator.username }}</a></p>
+                
+                {% set total_lessons = enrollment.guidelet.lessons|length %}
+                {% set completed_lessons = enrollment.last_completed_chapter_number %}
+                {% set progress_percent = (completed_lessons / total_lessons * 100) if total_lessons > 0 else 0 %}
+
+                <div class="progress-bar">
+                    <div class="progress-bar-fill" style="width: {{ progress_percent }}%;"></div>
+                </div>
+                <p>{{ completed_lessons }} of {{ total_lessons }} chapters completed</p>
+
+                <div class="mt-2">
+                    <a href="{{ url_for('guidelet_player', guidelet_id=enrollment.guidelet.id) }}" class="btn btn-primary">Resume Learning</a>
+                    <!-- NEW: Unenroll Form and Button -->
+                    <form action="{{ url_for('unenroll_from_guidelet', guidelet_id=enrollment.guidelet.id) }}" method="post" style="display: inline; margin-left: 10px;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-secondary" onclick="return confirm('Are you sure you want to unenroll? Your progress and chat history for this guidelet will be permanently deleted.');">Unenroll</button>
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>You are not enrolled in any guidelets yet. <a href="{{ url_for('explore') }}">Explore the library</a> to get started.</p>
+    {% endif %}
+</div>
+
+<div id="LearnerCircle" class="tab-content">
+    <h3>Notifications</h3>
+    <div class="notification-feed">
+        {% if notifications %}
+            {% for notification in notifications %}
+                <div class="notification-item">
+                    <p>{{ notification.message }}</p>
+                    <p class="timestamp">{{ notification.timestamp.strftime('%b %d, %Y at %I:%M %p') }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-center text-muted">You have no new notifications.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+function openTab(evt, tabName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tab-content");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tab-link");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(tabName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+</script>
+{% endblock %}

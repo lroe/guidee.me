@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+{% block title %}Find Fellow Learners{% endblock %}
+
+{% block content %}
+<style>
+    .search-container {
+        margin-bottom: 3rem;
+        padding: 1.5rem;
+        background: linear-gradient(145deg, #3a3a3a, #2c2c2c);
+        border-radius: 12px;
+        border: 1px solid #444;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 3px rgba(255,255,255,0.05);
+    }
+    .search-container .input-group {
+        display: flex;
+    }
+    .search-container input[type="search"] {
+        flex-grow: 1;
+        padding: 0.75rem 1.25rem;
+        border: 2px solid #c0a060;
+        background-color: #333;
+        color: #f0e0c0;
+        border-radius: 8px 0 0 8px;
+        font-size: 1rem;
+        font-family: 'Rubik', sans-serif;
+        transition: all 0.3s ease;
+        border-right: none;
+    }
+    .search-container input[type="search"]:focus {
+        outline: none;
+        border-color: #ffdd80;
+        box-shadow: 0 0 10px rgba(255, 221, 128, 0.3);
+    }
+    .search-container button {
+        padding: 0.75rem 2rem;
+        background: linear-gradient(to bottom, #e0b650, #c0a060);
+        color: #2a2a2a;
+        font-weight: bold;
+        border: 2px solid #c0a060;
+        border-left: none;
+        border-radius: 0 8px 8px 0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .search-container button:hover {
+        background: linear-gradient(to bottom, #f0c660, #d0b070);
+    }
+
+    .user-card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+    .user-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .user-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+    .user-card-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    .user-card-avatar img {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 3px solid var(--primary);
+    }
+    .user-card-info a {
+        text-decoration: none;
+        color: var(--text-main);
+    }
+    .user-card-info h4 {
+        margin: 0;
+        font-size: 1.25rem;
+    }
+    .user-card-stats {
+        display: flex;
+        justify-content: space-around;
+        text-align: center;
+        margin: 1rem 0;
+        padding: 1rem 0;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+    }
+    .user-card-stats .stat h5 {
+        margin: 0 0 0.25rem 0;
+        font-size: 1.2rem;
+        color: #ffc107;
+    }
+    .user-card-stats .stat p {
+        margin: 0;
+        font-size: 0.8rem;
+        color: var(--gray);
+        text-transform: uppercase;
+    }
+    .user-card-enrollments {
+        flex-grow: 1;
+    }
+    .user-card-enrollments h6 {
+        font-size: 0.9rem;
+        color: var(--gray);
+        margin-bottom: 0.5rem;
+    }
+    .enrollment-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        font-size: 0.9rem;
+    }
+    .enrollment-list li {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 0.25rem;
+    }
+    .user-card-footer {
+        margin-top: 1.5rem;
+    }
+</style>
+
+<div class="container-fluid mt-5 mb-5">
+    <h2 class="text-center mb-4">Find Fellow Learners</h2>
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-8">
+            <div class="search-container">
+                <form method="GET" action="{{ url_for('find_learners') }}" class="w-100">
+                    <div class="input-group">
+                        <input type="search" id="learner-search" name="q" class="form-control" placeholder="Search by username..." value="{{ search_query or '' }}">
+                        <button type="submit">Search</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="user-card-grid">
+        {% for user, completed_guidelets in users_with_stats %}
+            {% if user.id != current_user.id %}
+            <div class="user-card">
+                <div class="user-card-header">
+                    <div class="user-card-avatar">
+                        <a href="{{ url_for('user_profile', username=user.username) }}">
+                            <img src="{{ user.avatar_url or url_for('static', filename='images/avatars/default.png') }}" alt="{{ user.username }}'s avatar">
+                        </a>
+                    </div>
+                    <div class="user-card-info">
+                        <a href="{{ url_for('user_profile', username=user.username) }}">
+                            <h4>{{ user.username }}</h4>
+                        </a>
+                    </div>
+                </div>
+                <div class="user-card-stats">
+                    <div class="stat">
+                        <h5>{{ user.xp or 0 }}</h5>
+                        <p>XP</p>
+                    </div>
+                    <div class="stat">
+                        <h5>{{ completed_guidelets }}</h5>
+                        <p>Completed</p>
+                    </div>
+                    <div class="stat">
+                        <h5>{{ user.enrollments|length }}</h5>
+                        <p>Enrolled</p>
+                    </div>
+                </div>
+                <div class="user-card-enrollments">
+                    <h6>Currently Learning:</h6>
+                    <ul class="enrollment-list">
+                        {% for enrollment in user.enrollments[:3] %}
+                            <li>{{ enrollment.guidelet.title }}</li>
+                        {% else %}
+                            <li>Not enrolled in any guidelets.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="user-card-footer">
+                    {% if not current_user.is_following(user) %}
+                        <form action="{{ url_for('follow', user_id=user.id) }}" method="POST" class="d-grid">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-primary">Follow</button>
+                        </form>
+                    {% else %}
+                        <form action="{{ url_for('unfollow', user_id=user.id) }}" method="POST" class="d-grid">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-secondary">Unfollow</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<style>
+.modal {
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 8px;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#rejectionReason {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+</style>
+    <h2>Admin Dashboard</h2>
+    <p>Review guidelets submitted by creators.</p>
+
+    <hr class="section-divider">
+
+    <h3>Guidelets Pending Review ({{ pending_guidelets|length }})</h3>
+    {% if pending_guidelets %}
+        <ul class="guidelet-list">
+            {% for guidelet in pending_guidelets %}
+                <li class="guidelet-item">
+                    <div class="guidelet-info">
+                        <h3 class="guidelet-title">{{ guidelet.title }}</h3>
+                        <p class="guidelet-meta">By: {{ guidelet.creator.username }}</p>
+                    </div>
+                    <div class="guidelet-actions">
+                        <a href="{{ url_for('guidelet_player', guidelet_id=guidelet.id) }}" class="btn btn-secondary" target="_blank">Preview Guidelet</a>
+                        
+                        <form action="{{ url_for('decide_guidelet', guidelet_id=guidelet.id) }}" method="post" style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="decision" value="approve">
+                            <button type="submit" class="btn btn-primary">Approve</button>
+                        </form>
+
+                        <button type="button" class="btn btn-danger" onclick="openRejectModal('{{ guidelet.id }}')">Reject</button>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+
+    <!-- Rejection Modal -->
+    <div id="rejectModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeRejectModal()">&times;</span>
+            <h2>Reason for Rejection</h2>
+            <form id="rejectForm" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="decision" value="reject">
+                <textarea id="rejectionReason" name="rejection_reason" rows="4" placeholder="Explain why the guidelet is being rejected..." required></textarea>
+                <button type="submit" class="btn btn-danger">Submit Rejection</button>
+            </form>
+        </div>
+    </div>
+    {% else %}
+        <p>There are no guidelets currently awaiting review.</p>
+    {% endif %}
+
+    <hr class="section-divider">
+
+    <h3>Published Guidelets ({{ published_guidelets|length }})</h3>
+    {% if published_guidelets %}
+        <ul class="guidelet-list">
+            {% for guidelet in published_guidelets %}
+                <li class="guidelet-item">
+                    <div class="guidelet-info">
+                        <h3 class="guidelet-title">{{ guidelet.title }}</h3>
+                        <p class="guidelet-meta">By: {{ guidelet.creator.username }}</p>
+                    </div>
+                    <div class="guidelet-actions">
+                        <a href="{{ url_for('guidelet_player', guidelet_id=guidelet.id) }}" class="btn btn-secondary" target="_blank">View Guidelet</a>
+                        <form action="{{ url_for('unpublish_guidelet', guidelet_id=guidelet.id) }}" method="post" style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to unpublish this guidelet? It will be returned to a draft state.');">Unpublish</button>
+                        </form>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>There are no published guidelets.</p>
+    {% endif %}
+
+    <hr class="section-divider">
+
+    <hr class="section-divider">
+
+<h3>Topic Requests ({{ topic_requests|length }})</h3>
+{% if topic_requests %}
+    <div class="table-container">
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>Requested Topic</th>
+                    <th>Details</th>
+                    <th>Requested By</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in topic_requests %}
+                    <tr>
+                        <td>{{ req.topic_title }}</td>
+                        <td>{{ req.details or 'N/A' }}</td>
+                        <td>{{ req.user.username if req.user else 'Anonymous' }}</td>
+
+                        <td>{{ req.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                           <span class="status-badge status-{{ req.status }}">{{ req.status }}</span>
+                        </td>
+                        <td>
+                            {% if req.status == 'new' %}
+                                <form action="{{ url_for('update_topic_request_status', request_id=req.id) }}" method="post" style="display:inline;">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="status" value="viewed">
+                                    <button type="submit" class="btn btn-secondary">Mark as Viewed</button>
+                                </form>
+                            {% elif req.status == 'viewed' %}
+                               <form action="{{ url_for('update_topic_request_status', request_id=req.id) }}" method="post" style="display:inline;">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="status" value="done">
+                                    <button type="submit" class="btn btn-primary">Mark as Done</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <p>There are no new topic requests.</p>
+{% endif %}
+
+    <h3>Registered Users ({{ all_users|length }})</h3>
+    <div class="table-container">
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>XP</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in all_users %}
+                    <tr>
+                        <td>{{ user.username or 'N/A' }}</td>
+                        <td class="user-email">
+                            <span class="email-text" style="display:none;">{{ user.email }}</span>
+                            <button class="btn btn-secondary view-email-btn">View Email</button>
+                        </td>
+                        <td>{{ user.xp }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+function openRejectModal(guideletId) {
+    document.getElementById('rejectModal').style.display = 'block';
+    document.getElementById('rejectForm').action = '/admin/guidelet/' + guideletId + '/decide';
+}
+
+function closeRejectModal() {
+    document.getElementById('rejectModal').style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const viewButtons = document.querySelectorAll('.view-email-btn');
+    viewButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const emailSpan = this.previousElementSibling;
+            emailSpan.style.display = 'inline';
+            this.style.display = 'none';
+        });
+    });
+});
+</script>
+{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<style>
+.table-container {
+    overflow-x: auto;
+}
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+.user-table th, .user-table td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+.user-table th {
+    background-color: #f4f4f4;
+}
+.user-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+</style>
+{% endblock %}
