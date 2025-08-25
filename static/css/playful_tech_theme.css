@@ -248,7 +248,7 @@ body.player-body { background: #f0f2f5; height: 100dvh; overflow: hidden; }
     flex-shrink: 0;
     box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
 }
-.message { margin-bottom: 15px; padding: 12px 18px; border-radius: 18px; max-width: 80%; line-height: 1.6; }
+.message { margin-bottom: 15px; padding: 12px 18px; border-radius: 18px; max-width: 80%; line-height: 1.6;white-space: pre-wrap; }
 .tutor-message { background-color: var(--bg-white); border: 1px solid var(--border-color); align-self: flex-start; float: left; clear: both; }
 .student-message { background-color: var(--brand-blue-dark); color: #fff; align-self: flex-end; float: right; clear: both; }
 .chat-input-container { display: flex; gap: 10px; }
@@ -1204,6 +1204,7 @@ body.player-body { background: #f0f2f5; height: 100dvh; overflow: hidden; }
     transition: height 0.35s ease-in-out;
     border: none;
     border-radius: 12px;
+    white-space: pre-wrap;
 }
 
 /*-- -------------------------- --*/
@@ -1308,4 +1309,22 @@ body.player-body { background: #f0f2f5; height: 100dvh; overflow: hidden; }
 .close-btn:focus {
     color: #bbb;
     text-decoration: none;
+}
+
+/* --- FIX: Add spacing between paragraphs in chat bubbles --- */
+.message .message-content p {
+    margin-top: 1em; /* You can adjust this value */
+    white-space: pre-wrap;
+}
+
+/* This prevents extra space on the very first paragraph */
+.message .message-content p:first-child {
+    margin-top: 0;
+}
+/* VVV ADD THIS NEW BLOCK VVV */
+.message p {
+    margin-bottom: 0.5rem;
+}
+.message p:last-child {
+    margin-bottom: 0;
 }

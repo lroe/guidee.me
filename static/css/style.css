@@ -218,7 +218,7 @@ input:focus, textarea:focus { outline: 2px solid #bfa073; }
     padding: 10px;
     padding-top: 80px; /* Add padding to prevent overlap with the fixed header */
 }
-.message { margin-bottom: 15px; padding: 10px 18px; border-radius: 18px; max-width: 80%; line-height: 1.5; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.message { margin-bottom: 15px; padding: 10px 18px; border-radius: 18px; max-width: 80%; line-height: 1.5; box-shadow: 0 2px 4px rgba(0,0,0,0.1);white-space: pre-wrap; }
 .tutor-message { background-color: #fffaf0; border: 1px solid #dbc9a2; align-self: flex-start; float: left; clear: both; }
 .student-message { background-color: #d1bfa4; color: #4e3928; align-self: flex-end; float: right; clear: both; }
 .options-container button { width: 100%; margin-top: 8px; text-align: left; }

@@ -1,5 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Element Selectors ---
+
+    marked.setOptions({
+    breaks: true
+    });
     const chatBox = document.getElementById('chat-box');
     const inputArea = document.getElementById('input-area');
     const qnaInput = document.getElementById('qna-input');
@@ -206,14 +210,14 @@ document.addEventListener('DOMContentLoaded', () => {
         messageDiv.dataset.rawText = text;
 
         messageDiv.innerHTML = `
-            <div class="message-content">${marked.parse(text)}</div>
-            <button class="pin-note-btn" title="Save to Notebook">📌</button>
-            <div class="inline-note-form">
-                <input type="text" class="inline-note-input" placeholder="Add a quick note... (Optional)">
-                <button class="btn btn-primary btn-save-note">✓</button>
-                <button class="btn btn-secondary btn-cancel-note">×</button>
-            </div>
-        `;
+        <div class="message-content">${marked.parse(text, { breaks: true })}</div>
+        <button class="pin-note-btn" title="Save to Notebook">📌</button>
+        <div class="inline-note-form">
+            <input type="text" class="inline-note-input" placeholder="Add a quick note... (Optional)">
+            <button class="btn btn-primary btn-save-note">✓</button>
+            <button class="btn btn-secondary btn-cancel-note">×</button>
+        </div>
+    `;
 
         chatBox.appendChild(messageDiv);
         // THIS IS THE FIX: Scroll the new message into view from the top.

@@ -750,6 +750,7 @@ INSTRUCTIONS:
 3.  Consult the [FULL LESSON SCRIPT] to find the definitive answer or relevant information related to that topic.
 4.  Formulate a clear, helpful, and conversational response based **strictly** on the information found in the lesson script.
 5.  If the script does not contain the answer, explicitly state that the topic is not covered in the lesson material. Then explain it in detail (using outside knowledge)
+
 """
     return get_tutor_response(prompt)
 
@@ -1592,6 +1593,7 @@ IMPORTANT: You MUST NOT output raw script tags like [AUDIO: ...] or [IMAGE: ...]
 
 [FORMATTING RULES]
 Use markdown for formatting, especially bolding key terms with double asterisks (e.g., **this is important**).
+**Use double newlines to create separate paragraphs.** This is essential for line breaks.
 If you need to include a code block, you MUST wrap it in triple backticks. You can specify the language for highlighting. Example:
 ```python
 print("Hello, World!")

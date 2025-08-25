@@ -110,6 +110,7 @@ body.player-body.theme-reader {
     border-radius: 12px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     max-width: 85%;
+    white-space: pre-wrap;
 }
 
 .theme-reader .tutor-message {
