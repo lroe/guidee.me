@@ -2756,18 +2756,42 @@ from thefuzz import process, fuzz
 @app.route('/explore')
 def explore():
     search_query = request.args.get('q', '')
-    sort_by = request.args.get('sort', 'newest')
-    category = request.args.get('category', 'all')
 
+    # --- 1. FEATURED GUIDELET LOGIC ---
+    # Read the comma-separated list of featured IDs from the environment variable.
+    featured_ids_str = os.getenv('FEATURED_GUIDELET_IDS', '')
+    featured_ids = [id.strip() for id in featured_ids_str.split(',') if id.strip()]
+    
+    featured_guidelets = []
+    if featured_ids:
+        # Fetch the guidelet objects corresponding to the featured IDs.
+        featured_query_results = Guidelet.query.options(
+            joinedload(Guidelet.creator),
+            subqueryload(Guidelet.reviews)
+        ).filter(
+            Guidelet.id.in_(featured_ids),
+            Guidelet.status == 'published'
+        ).all()
+        
+        # Re-sort the fetched guidelets to match the exact order from the environment variable.
+        if featured_query_results:
+            guidelet_map = {g.id: g for g in featured_query_results}
+            featured_guidelets = [guidelet_map[id] for id in featured_ids if id in guidelet_map]
+
+    # --- 2. MAIN GUIDELET QUERY (NON-FEATURED) ---
+    # This is the base query for all other guidelets.
     guidelets_query = Guidelet.query.options(
         joinedload(Guidelet.creator),
-        subqueryload(Guidelet.lessons),
         subqueryload(Guidelet.reviews)
     ).filter(Guidelet.status == 'published')
+    
+    # CRITICAL: Exclude the already-featured guidelets to prevent them from appearing twice.
+    if featured_ids:
+        guidelets_query = guidelets_query.filter(not_(Guidelet.id.in_(featured_ids)))
 
-    guidelets = []
-
+    other_guidelets = []
     if search_query:
+        # If there's a search query, perform the AI semantic search on the non-featured guidelets.
         try:
             SIMILARITY_THRESHOLD = 0.55
             query_embedding_result = genai.embed_content(
@@ -2776,6 +2800,8 @@ def explore():
                 task_type="RETRIEVAL_QUERY"
             )
             query_embedding = np.array(query_embedding_result['embedding'])
+            
+            # Query only the non-featured guidelets that have an embedding.
             all_guidelets_with_embeddings = guidelets_query.filter(Guidelet.search_embedding.isnot(None)).all()
             
             guidelet_scores = []
@@ -2787,76 +2813,53 @@ def explore():
                     guidelet_scores.append((guidelet, similarity))
 
             guidelet_scores.sort(key=lambda x: x[1], reverse=True)
-            guidelets = [item[0] for item in guidelet_scores]
-            sort_by = 'relevance'
+            other_guidelets = [item[0] for item in guidelet_scores]
 
-            if not guidelets:
-                print("AI search returned no relevant results, falling back to keyword search.")
-                guidelets = guidelets_query.filter(
+            # Fallback to keyword search if AI search yields no results
+            if not other_guidelets:
+                other_guidelets = guidelets_query.filter(
                     or_(Guidelet.title.ilike(f'%{search_query}%'), Guidelet.description.ilike(f'%{search_query}%'))
                 ).all()
 
         except Exception as e:
             print(f"AI search failed, falling back to keyword search. Error: {e}")
-            guidelets = guidelets_query.filter(
+            other_guidelets = guidelets_query.filter(
                 or_(Guidelet.title.ilike(f'%{search_query}%'), Guidelet.description.ilike(f'%{search_query}%'))
             ).all()
     else:
-        # Original logic for when there is no search query
-        guidelets = guidelets_query.all()
+        # If there's no search query, get all other guidelets, newest first.
+        other_guidelets = guidelets_query.order_by(Guidelet.id.desc()).all()
 
+    # --- 3. COMBINE AND RENDER ---
+    # The final list is the featured guidelets followed by the rest.
+    all_guidelets = featured_guidelets + other_guidelets
 
-    # --- UPDATED: AUTOMATIC TOPIC REQUEST FOR ALL USERS ---
-    if search_query and not guidelets:
+    # --- 4. AUTOMATIC TOPIC REQUEST LOGIC ---
+    # This runs if the final combined list is empty after a search.
+    if search_query and not all_guidelets:
         if current_user.is_authenticated:
-            # Logic for logged-in users (uses user_id)
             existing_request = TopicRequest.query.filter(
                 func.lower(TopicRequest.topic_title) == search_query.lower(),
                 TopicRequest.user_id == current_user.id
             ).first()
             if not existing_request:
-                new_request = TopicRequest(
-                    topic_title=search_query,
-                    details="Automatically requested via search bar (Logged-in User).",
-                    user_id=current_user.id
-                )
-                db.session.add(new_request)
+                db.session.add(TopicRequest(topic_title=search_query, details="Automatically requested via search.", user_id=current_user.id))
                 db.session.commit()
-                print(f"Automatically created topic request for '{search_query}' by user {current_user.username}")
         else:
-            # Logic for anonymous users (uses session_id)
-            # We create a unique ID for the anonymous session if it doesn't exist
             if 'anonymous_user_id' not in session:
                 session['anonymous_user_id'] = str(uuid.uuid4())
-            
             session_id = session['anonymous_user_id']
-            
             existing_request = TopicRequest.query.filter(
                 func.lower(TopicRequest.topic_title) == search_query.lower(),
                 TopicRequest.session_id == session_id
             ).first()
-            
             if not existing_request:
-                new_request = TopicRequest(
-                    topic_title=search_query,
-                    details="Automatically requested via search bar (Anonymous User).",
-                    session_id=session_id
-                )
-                db.session.add(new_request)
+                db.session.add(TopicRequest(topic_title=search_query, details="Automatically requested via search.", session_id=session_id))
                 db.session.commit()
-                print(f"Automatically created topic request for '{search_query}' by anonymous session {session_id}")
-    # --- END OF UPDATED LOGIC ---
 
-
-    categories_query = db.session.query(Guidelet.category).filter(Guidelet.category.isnot(None)).distinct()
-    categories = [c[0] for c in categories_query.all()]
-    
     return render_template('explore.html', 
-                           guidelets=guidelets, 
-                           categories=categories,
-                           search_query=search_query,
-                           sort_by=sort_by,
-                           current_category=category)
+                           guidelets=all_guidelets, 
+                           search_query=search_query)
 
 @app.route('/guidelet/<string:guidelet_id>')
 @login_required
