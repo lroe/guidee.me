@@ -24,7 +24,7 @@ import click
 import hashlib
 import re
 import pytz
-from sqlalchemy import func, cast, Date,extract,or_
+from sqlalchemy import func, cast, Date,extract,or_, not_
 import numpy as np 
 import random
 
