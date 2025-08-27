@@ -1252,7 +1252,7 @@ def chat():
                 else:
                     print(f"WARNING: Media step has null URL at step {step_index} in lesson {lesson.id}")
                 
-                explanation_instruction = f"The student has just been shown a {media_type}. Now, explain the concepts in the following text, which describes the media. The content to explain is:\n---\n{alt_text}\n---"
+                explanation_instruction = f"""Your task is to explain the concept illustrated by the {media_type} the student is currently viewing. Present this as a natural continuation of the conversation. The core information to convey is:---{alt_text}---"""
                 
                 if lesson.chapter_number > 1:
                     intro_phrase = f"The student is starting Chapter {lesson.chapter_number}, which begins with a {media_type}. Welcome them back to the guidelet and then proceed with the explanation of the media's content."
