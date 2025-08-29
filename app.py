@@ -1302,8 +1302,16 @@ def chat():
 
                 if step_index == 0:
                     if lesson.chapter_number > 1:
-                        task_description = f"The student is starting Chapter {lesson.chapter_number}. **Start by welcoming them back to the guidelet and then introduce the first topic of this new chapter.** The content to explain is:\n---\n{processed_chunk_to_explain}\n---"
-                        state_description = f"The student is starting Chapter {lesson.chapter_number}."
+                        previous_lesson_title = "the previous topic"
+                        previous_lesson = Lesson.query.filter_by(
+                            guidelet_id=lesson.guidelet_id,
+                            chapter_number=lesson.chapter_number - 1
+                        ).first()
+                        if previous_lesson:
+                            previous_lesson_title = previous_lesson.title
+                        
+                        task_description = f"""The student has just finished the chapter on "{previous_lesson_title}". Your task is to create a smooth, natural transition to the first topic of this new chapter. The content to explain is:\n---\n{processed_chunk_to_explain}\n---"""
+                        state_description = f"The student is starting Chapter {lesson.chapter_number} after completing '{previous_lesson_title}'."
                     else:
                         task_description = f"The student is just beginning this guidelet. **Start with a warm welcome and then introduce the very first topic.** The content to explain is:\n---\n{processed_chunk_to_explain}\n---"
                         state_description = "The student is at the very beginning of the guidelet."
