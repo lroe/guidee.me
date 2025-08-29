@@ -746,10 +746,10 @@ Student: {question}
 
 INSTRUCTIONS:
 1.  Thoroughly analyze the [RECENT CONVERSATION HISTORY] to understand the student's current question.
-2.  **CRITICAL RULE:** If the student's question is ambiguous or a conversational follow-up (e.g., "why?", "tell me more", "another one?"), you **MUST** assume they are referring to the immediate topic of the Tutor's most recent message in the history.
-3.  Consult the [FULL LESSON SCRIPT] to find the definitive answer or relevant information related to that topic.
-4.  Formulate a clear, helpful, and conversational response based **strictly** on the information found in the lesson script.
-5.  If the script does not contain the answer, explicitly state that the topic is not covered in the lesson material. Then explain it in detail (using outside knowledge)
+2.  **CRITICAL RULE:** If the student's question is ambiguous or a conversational follow-up (e.g., "why?", "tell me more"), you **MUST** assume they are referring to the immediate topic of the Tutor's most recent message in the history.
+3.  First, consult the [FULL LESSON SCRIPT] to find the definitive answer. This is your primary source of information.
+4.  Formulate a clear, helpful, and conversational response.
+5.  **If, and only if, the lesson script does not contain the answer to the student's question, you must use your general knowledge to provide an accurate and detailed explanation.** Do NOT apologize or mention that the information isn't in the lesson; simply provide the best possible answer to help the student learn.
 
 """
     return get_tutor_response(prompt)
@@ -1234,7 +1234,7 @@ def chat():
                 ])
                 
                 if lesson.chapter_number > 1:
-                    task_description = f"The student is starting Chapter {lesson.chapter_number}. **Start by welcoming them back to the guidelet and then introduce the first topic of this new chapter.** The content to explain is:\n---\n{_replace_media_tags_for_prompt(chunk_to_explain)}\n---"
+                    task_description = f"The student is starting Chapter {lesson.chapter_number}. ** Introduce the first topic of this new chapter.** The content to explain is:\n---\n{_replace_media_tags_for_prompt(chunk_to_explain)}\n---"
                     state_description = f"The student is starting Chapter {lesson.chapter_number}."
                 else:
                     task_description = f"The student is just beginning this guidelet. **Start with a warm welcome and then introduce the very first topic.** The content to explain is:\n---\n{_replace_media_tags_for_prompt(chunk_to_explain)}\n---"
@@ -1302,14 +1302,15 @@ def chat():
 
                 if step_index == 0:
                     if lesson.chapter_number > 1:
-                        task_description = f"The student is starting Chapter {lesson.chapter_number}. **Start by welcoming them back to the guidelet and then introduce the first topic of this new chapter.** The content to explain is:\n---\n{processed_chunk_to_explain}\n---"
+
+                        task_description = f"The student is starting Chapter {lesson.chapter_number}. **Start by introduce the first topic of this new chapter.** The content to explain is:\n---\n{processed_chunk_to_explain}\n---"
                         state_description = f"The student is starting Chapter {lesson.chapter_number}."
                     else:
                         task_description = f"The student is just beginning this guidelet. **Start with a warm welcome and then introduce the very first topic.** The content to explain is:\n---\n{processed_chunk_to_explain}\n---"
                         state_description = "The student is at the very beginning of the guidelet."
                 else:
                     state_description = "The student is continuing the lesson and is ready for the next piece of content."
-                    task_description = f"Present the next piece of information as a natural continuation of the conversation. The content to explain is:\n---\n{processed_chunk_to_explain}\n---"
+                    task_description = f"Present the next piece of information as a natural continuation of the conversation.(dont use filler words) The content to explain is:\n---\n{processed_chunk_to_explain}\n---"
                 
                 next_chunk_index = 0
                 if enrollment and random.random() < 0.15:
@@ -1336,7 +1337,7 @@ def chat():
                     else:
                         print(f"WARNING: Media step has null URL at step {step_index} in lesson {lesson.id}")
 
-                    explanation_instruction = f"The student has just been shown a {media_type}. Now, explain the concepts in the following text, which describes the media. Present this as a natural continuation of the conversation. The content to explain is:\n---\n{alt_text}\n---"
+                    explanation_instruction = f"The student has just been shown a {media_type}. Now, explain the concepts in the following text, which describes the media. Present this as a natural continuation of the conversation.(dont use any filler word) The content to explain is:\n---\n{alt_text}\n---"
                     
                     if step_index == 0:
                         if lesson.chapter_number > 1:
