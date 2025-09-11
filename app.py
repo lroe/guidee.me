@@ -366,7 +366,7 @@ You are a precise curriculum parsing agent. Your task is to convert a teacher's 
 4. For explanatory text, the "type" should be "CONTENT" and it should have a "text" key. This includes any media placeholders like ---MEDIA_PLACEHOLDER---.
 5. For multiple-choice questions like [QUESTION: ... OPTIONS: A)... ANSWER: B], a "type" of "QUESTION_MCQ" MUST be used. It MUST have a "question" key for the question text, an "options" key which is an array of strings, and an "answer" key.
 6. For short-answer questions like [QUESTION_SA: ... KEYWORDS: word1, word2, ... REASON: (optional) ...], a "type" of "QUESTION_SA" MUST be used. It MUST have a "question" key for the question text and a "keywords" key which is an array of strings. If a "REASON" field is present, include it as an optional "reason" key in the JSON object.
- 
+7.For explanatory text, if you see paragraphs separated by a blank line (a double newline), you MUST treat each paragraph as a separate "CONTENT" step. Each of these steps MUST have a "type" key set to "CONTENT" and a "text" key containing the paragraph's text. This includes any media placeholders like ---MEDIA_PLACEHOLDER---.
  Parse the following script:
  """
 INTENT_CLASSIFIER_PROMPT = """
@@ -1228,10 +1228,7 @@ def chat():
                 return jsonify(response_data)
             
             elif step_type == 'CONTENT':
-                chunk_to_explain = "\n\n".join([
-                    s.get('text', '') for s in lesson_steps 
-                    if s.get('type') == 'CONTENT' and s.get('stage') == current_step.get('stage')
-                ])
+                chunk_to_explain = current_step.get('text', '')
                 
                 if lesson.chapter_number > 1:
                     task_description = f"The student is starting Chapter {lesson.chapter_number}. ** Introduce the first topic of this new chapter.** The content to explain is:\n---\n{_replace_media_tags_for_prompt(chunk_to_explain)}\n---"
@@ -1285,34 +1282,28 @@ def chat():
                 return jsonify(response_data)
             
             elif step_type == 'CONTENT':
-                content_to_explain = []
-                next_step_index = step_index
-                
-                while next_step_index < len(lesson_steps):
-                    step = lesson_steps[next_step_index]
-                    if (step.get('type') == 'CONTENT' and 
-                        step.get('stage') == current_step.get('stage')):
-                        content_to_explain.append(step.get('text', ''))
-                        next_step_index += 1
-                    else:
-                        break
-                
-                chunk_to_explain = "\n\n".join(content_to_explain)
+                # The bundling 'while' loop has been removed.
+                # We now only process the single, current content step from the lesson.
+                chunk_to_explain = current_step.get('text', '')
                 processed_chunk_to_explain = _replace_media_tags_for_prompt(chunk_to_explain)
 
+                # This logic correctly sets up the prompt for the AI based on the lesson's progress.
                 if step_index == 0:
                     if lesson.chapter_number > 1:
-
-                        task_description = f"The student is starting Chapter {lesson.chapter_number}. **Start by introduce the first topic of this new chapter.** The content to explain is:\n---\n{processed_chunk_to_explain}\n---"
+                        task_description = f"The student is starting Chapter {lesson.chapter_number}. **Start by introducing the first topic of this new chapter.** The content to explain is:\n---\n{processed_chunk_to_explain}\n---"
                         state_description = f"The student is starting Chapter {lesson.chapter_number}."
                     else:
                         task_description = f"The student is just beginning this guidelet. **Start with a warm welcome and then introduce the very first topic.** The content to explain is:\n---\n{processed_chunk_to_explain}\n---"
                         state_description = "The student is at the very beginning of the guidelet."
                 else:
                     state_description = "The student is continuing the lesson and is ready for the next piece of content."
-                    task_description = f"Present the next piece of information as a natural continuation of the conversation.(dont use filler words) The content to explain is:\n---\n{processed_chunk_to_explain}\n---"
-                
+                    task_description = f"Present the next piece of information as a natural continuation of the conversation.(don't use filler words) The content to explain is:\n---\n{processed_chunk_to_explain}\n---"
+
+                # We now simply advance the lesson to the next step.
+                next_step_index = step_index + 1
                 next_chunk_index = 0
+
+                # This part handles a small, random XP award and can remain as is.
                 if enrollment and random.random() < 0.15:
                     xp_to_award = 5 # A small, delightful bonus
                     award_xp(current_user, xp_to_award)
