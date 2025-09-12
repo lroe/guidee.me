@@ -367,6 +367,7 @@ You are a precise curriculum parsing agent. Your task is to convert a teacher's 
 5. For multiple-choice questions like [QUESTION: ... OPTIONS: A)... ANSWER: B], a "type" of "QUESTION_MCQ" MUST be used. It MUST have a "question" key for the question text, an "options" key which is an array of strings, and an "answer" key.
 6. For short-answer questions like [QUESTION_SA: ... KEYWORDS: word1, word2, ... REASON: (optional) ...], a "type" of "QUESTION_SA" MUST be used. It MUST have a "question" key for the question text and a "keywords" key which is an array of strings. If a "REASON" field is present, include it as an optional "reason" key in the JSON object.
 7.For explanatory text, if you see paragraphs separated by a blank line (a double newline), you MUST treat each paragraph as a separate "CONTENT" step. Each of these steps MUST have a "type" key set to "CONTENT" and a "text" key containing the paragraph's text. This includes any media placeholders like ---MEDIA_PLACEHOLDER---.
+ 8.Parse all math stuffs as latex.
  Parse the following script:
  """
 INTENT_CLASSIFIER_PROMPT = """
