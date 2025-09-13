@@ -378,13 +378,13 @@ The available media descriptions in this lesson are: {}
 You MUST respond with a single, specific JSON object. Choose ONE of the following intents:
 
 1.  If the user is asking a general question about the lesson content, respond with:
-    {{"intent": "QNA", "query": "the user's original question"}}
+    {{"intent": "QNA", "query": "put user input here"}}
 
 2.  If the user is asking to see a specific piece of media again AND their request matches one of the available media descriptions, respond with:
     {{"intent": "MEDIA_REQUEST", "alt_text": "the matching media description from the list"}}
 
 3.  If the user's request is unclear or doesn't fit the above, default to a general question:
-    {{"intent": "QNA", "query": "the user's original question"}}
+    {{"intent": "QNA", "query": "put user input here"}}
 
 User Input: "{}"
 """
@@ -722,6 +722,31 @@ def _get_or_create_rag_retriever(lesson_id, lesson_script):
     except Exception as e:
         print(f"Error creating RAG embeddings: {e}")
         return None
+
+def answer_question_with_history(question, chat_history):
+    """
+    Answers a user's question using the full previous message history as context.
+    """
+    # Construct the full message history for the prompt.
+    history_for_prompt = "\n".join([
+        f"{msg['sender'].title()}: {msg['content']}" 
+        for msg in chat_history if msg.get('type') == 'text'
+    ])
+
+    prompt = f"""You are a helpful and friendly AI tutor.  You follow socratic methodology.
+
+[FULL PREVIOUS MESSAGE HISTORY]
+---
+{history_for_prompt}
+---
+Student: {question}
+
+INSTRUCTIONS:
+1.  Thoroughly analyze the [FULL PREVIOUS MESSAGE HISTORY] to understand the student's current query and the context of the conversation so far.
+
+
+"""
+    return get_tutor_response(prompt)
 
 def answer_question_with_full_context(question, lesson, chat_history):
     """
@@ -1137,7 +1162,8 @@ def chat():
 
     if request_type == 'QNA':
         # Pass the current chat log to provide conversational context
-        response_text = answer_question_with_full_context(user_input, lesson, chat_log)
+        response_text = answer_question_with_history(user_input, chat_log)
+
 
         chat_log.append({
             "sender": "student", 
