@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    
     async function saveNote(data) {
         try {
             const response = await fetch('/api/notes', {
@@ -916,6 +917,17 @@ window.addEventListener('message', (event) => {
         }, 1500);
     }
 });
+
+
+// --- NEW: Debounce utility function (Add this to lesson.js) ---
+function debounce(func, delay) {
+    let timeout;
+    return function(...args) {
+        const context = this;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), delay);
+    };
+}
 
 
 // --- NEW: Keyboard-aware resize for bottom input on mobile (Add after resizeIframe) ---

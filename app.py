@@ -390,6 +390,18 @@ User Input: "{}"
 """
 DEFAULT_TUTOR_PERSONA = "You are a friendly, and helpful AI tutor. You are guiding a student through an interactive online guidelet."
 
+
+MEDIA_EXPLANATION_PROMPT = """
+You are a friendly and helpful AI tutor. The student has asked to see an image again.
+Your task is to re-introduce and explain the image in a conversational and well-formatted way. Take the following technical description and make it sound natural.
+Use markdown for formatting, like bolding key terms. Start your response with a phrase like "Of course, here's that image again." or "Certainly! Here is the..."
+
+[IMAGE DESCRIPTION]:
+---
+{alt_text}
+---
+"""
+
 SA_ANALYSIS_PROMPT = """
 You are an AI assistant that evaluates a student's answer to a short-answer question.
 The user was asked: "{question}"
@@ -1113,13 +1125,23 @@ def chat():
         ), None)
         
         if media_to_show:
+            # Get the raw alt_text from the lesson data
+            alt_text = media_to_show.get('alt_text')
+            
+            # Create the new prompt for the AI
+            explanation_prompt = MEDIA_EXPLANATION_PROMPT.format(alt_text=alt_text)
+            
+            # Get a formatted, conversational response from the AI
+            formatted_explanation = get_tutor_response(explanation_prompt)
+            
             return jsonify({
-                "tutor_text": f"Of course, here is '{media_to_show.get('alt_text')}' again.",
+                "tutor_text": formatted_explanation, # Use the AI's new response
                 "media_url": media_to_show.get('media_url'),
                 "media_type": media_to_show.get('media_type'),
                 "is_qna_response": True
             })
         else:
+            # If the media isn't found, fall back to a regular Q&A
             request_type = 'QNA'
 
     is_creator = (current_user.id == lesson.guidelet.user_id)
