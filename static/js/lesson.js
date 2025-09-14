@@ -577,24 +577,72 @@ function addGameMessage(gameId, title) {
 
     // Initialize the lesson
     initializeLesson();
-
-    // --- Global Event Listener for Game Completion ---
     window.addEventListener('message', (event) => {
-        if (event.origin !== window.location.origin) return;
+        // Security: Only accept messages from our own domain
+        if (event.origin !== window.location.origin) {
+            console.warn('Blocked a message from an untrusted origin:', event.origin);
+            return;
+        }
+
         const data = event.data;
+
+        // --- Case 1: The game is fully complete and the lesson should proceed ---
         if (data === 'game_complete') {
             console.log('Game completed! Automatically proceeding.');
-            const lastGameMessage = chatBox.querySelector('.game-frame-container:last-of-type');
+            const lastGameMessage = chatBox.querySelector('.message.game-message:last-of-type');
             if (lastGameMessage) {
                 lastGameMessage.style.textAlign = 'center';
-                lastGameMessage.innerHTML = `<p style="font-weight: bold; color: #28a745; margin: 10px;">Challenge Complete!</p>`;
+                lastGameMessage.style.padding = '20px';
+                lastGameMessage.innerHTML = `<p style="font-weight: bold; font-size: 1.2rem; color: #28a745;">✓ Challenge Complete!</p>`;
             }
             inputArea.innerHTML = '';
             setTimeout(() => {
                 postToChat('Continue', 'LESSON_FLOW');
             }, 1500);
+        
+        // --- Case 2: The game is sending a chat message to be processed by the AI ---
+        } else if (data && data.type === 'game_chat_message') {
+            
+            // --- THIS IS THE FIX ---
+            // Find the last .game-message bubble on the page, then find the iframe inside it.
+            // This is much more reliable than searching by a partial src attribute.
+            const allGameMessages = document.querySelectorAll('.message.game-message');
+            const lastGameMessage = allGameMessages[allGameMessages.length - 1];
+            const gameIframe = lastGameMessage ? lastGameMessage.querySelector('iframe') : null;
+            // --- END OF FIX ---
+
+            if (!gameIframe) {
+                console.error("Could not find the game iframe to send a response to. This should not happen if a game is active.");
+                return;
+            }
+
+            // Send the game's message to our backend API endpoint
+            fetch('/api/game-chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF_TOKEN },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(apiResult => {
+                // Send the AI's response back DOWN to the game iframe
+                const responsePayload = {
+                    type: 'ai_response_for_game',
+                    payload: apiResult.response
+                };
+                gameIframe.contentWindow.postMessage(responsePayload, '*');
+            })
+            .catch(err => {
+                console.error("Error bridging game chat to backend:", err);
+                const errorPayload = {
+                    type: 'ai_response_for_game',
+                    payload: "Sorry, I'm having trouble connecting right now. Please try again."
+                };
+                gameIframe.contentWindow.postMessage(errorPayload, '*');
+            });
         }
     });
+
+     
 });
 
 // --- Lightbox/Modal Logic ---
@@ -882,41 +930,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-window.addEventListener('message', (event) => {
-    
-    // CRITICAL SECURITY CHECK:
-    // Only accept messages from the same origin as the parent page.
-    // This will automatically work for "http://127.0.0.1:5000" during local testing
-    // and "https://www.guidee.me" in production.
-    if (event.origin !== window.location.origin) {
-        console.warn('Blocked a message from an untrusted origin:', event.origin);
-        return;
-    }
+// In static/js/lesson.js, modify the existing message listener
 
-    const data = event.data;
 
-    // The listener now ONLY handles the 'game_complete' message.
-    // The complex resizing logic has been completely removed.
-    if (data === 'game_complete') {
-        console.log('Game completed! Automatically proceeding.');
-        
-        // Find the most recent game message bubble to display the completion message.
-        const lastGameMessage = chatBox.querySelector('.message.game-message:last-of-type');
-        if (lastGameMessage) {
-            // Make the bubble look nice after completion.
-            lastGameMessage.style.textAlign = 'center';
-            lastGameMessage.style.padding = '20px';
-            lastGameMessage.style.flexGrow = '0'; // Stop it from expanding now.
-            lastGameMessage.innerHTML = `<p style="font-weight: bold; font-size: 1.2rem; color: var(--correct-color);">✓ Challenge Complete!</p>`;
-        }
-        
-        // Clear the input area and move to the next step in the lesson after a short delay.
-        inputArea.innerHTML = '';
-        setTimeout(() => {
-            postToChat('Continue', 'LESSON_FLOW');
-        }, 1500);
-    }
-});
 
 
 // --- NEW: Debounce utility function (Add this to lesson.js) ---

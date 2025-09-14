@@ -71,6 +71,11 @@
         </div>
         
         <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">Save Game</button>
+            <div class="code-pane" style="grid-column: 1 / -1;"> <!-- Make it span full width -->
+        <label for="solution_script">AI Solution Script & Ground Truth</label>
+        <textarea id="solution_script" name="solution_script" spellcheck="false" rows="8" 
+                  placeholder="Provide the correct answer, steps, and context for the AI here. This is your ground truth.">{{ game.solution_script or '' }}</textarea>
+    </div>
     </form>
     
     <script>

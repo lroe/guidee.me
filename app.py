@@ -104,6 +104,7 @@ class InteractiveGame(db.Model):
     html_content = db.Column(db.Text, nullable=True)
     css_content = db.Column(db.Text, nullable=True)
     js_content = db.Column(db.Text, nullable=True)
+    solution_script = db.Column(db.Text, nullable=True) # To store the ground truth for the AI
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
 
@@ -1784,11 +1785,71 @@ def edit_game(game_id):
         game.html_content = request.form['html_content']
         game.css_content = request.form['css_content']
         game.js_content = request.form['js_content']
+        game.solution_script = request.form['solution_script']
         db.session.commit()
         flash(f'Game "{game.title}" updated successfully!', 'success')
         return redirect(url_for('game_studio'))
 
     return render_template('edit_game.html', game=game)
+# In app.py, add this new route
+
+@app.route('/test-api')
+def test_api():
+    return jsonify({'status': 'ok', 'message': 'The server has been updated successfully!'})
+
+# In app.py
+# REPLACE your current game_chat function with this one.
+
+@app.route('/api/game-chat', methods=['POST'])
+@login_required
+def game_chat():
+    print("--- SERVER: /api/game-chat route was successfully reached! ---")
+    
+    data = request.json
+    game_id = data.get('gameId')
+    user_query = data.get('userQuery')
+    history = data.get('history', [])
+
+    # --- FIX #1: Use .get() instead of .get_or_404() for better error handling ---
+    game = InteractiveGame.query.get(game_id)
+
+    # --- FIX #2: Add a manual check to see if the game was found ---
+    if not game:
+        print(f"--- SERVER ERROR: Game with ID '{game_id}' was not found in the database. ---")
+        # Return a more helpful JSON error instead of a generic 404 HTML page
+        return jsonify({'response': "Error: The game session could not be found on the server."}), 404
+
+    print(f"--- SERVER: Successfully found game '{game.title}' in the database. ---")
+
+    solution_script = game.solution_script
+
+    if not solution_script:
+        return jsonify({'response': "I don't have a solution script for this problem."})
+
+    # Construct a detailed prompt for the AI
+    history_str = "\n".join([f"{msg['sender'].capitalize()}: {msg['text']}" for msg in history])
+    
+    prompt = f"""You are an expert Socratic tutor for advanced physics problems.
+
+[GROUND TRUTH AND CORRECT SOLUTION]
+---
+{solution_script}
+---
+
+[CURRENT CONVERSATION HISTORY]
+---
+{history_str}
+---
+
+The student's latest input is: "{user_query}"
+
+Your task is to analyze the student's input against the ground truth and the conversation history. Guide them step-by-step towards the correct solution using the Socratic method. Do NOT give away the final answer unless they have clearly demonstrated understanding of all prior steps. Your response should be conversational and encouraging.
+"""
+
+    # Use your existing helper function to call the Gemini API
+    ai_response = get_tutor_response(prompt) 
+
+    return jsonify({'response': ai_response})
 
 @app.route('/creator/game/delete/<string:game_id>', methods=['POST'])
 @login_required
