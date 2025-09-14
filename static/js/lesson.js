@@ -588,20 +588,16 @@ function addGameMessage(gameId, title) {
 
         // --- Case 1: The game is fully complete and the lesson should proceed ---
         if (data === 'game_complete') {
-            console.log('Game completed! Automatically proceeding.');
-            const lastGameMessage = chatBox.querySelector('.message.game-message:last-of-type');
-            if (lastGameMessage) {
-                lastGameMessage.style.textAlign = 'center';
-                lastGameMessage.style.padding = '20px';
-                lastGameMessage.innerHTML = `<p style="font-weight: bold; font-size: 1.2rem; color: #28a745;">✓ Challenge Complete!</p>`;
-            }
-            inputArea.innerHTML = '';
-            setTimeout(() => {
-                postToChat('Continue', 'LESSON_FLOW');
-            }, 1500);
-        
-        // --- Case 2: The game is sending a chat message to be processed by the AI ---
-        } else if (data && data.type === 'game_chat_message') {
+    console.log('Game completed! Automatically proceeding to the next step.');
+    
+    // Clear the input area (e.g., remove the "Continue" button)
+    inputArea.innerHTML = ''; 
+
+    // Wait 1.5 seconds and then call postToChat to get the next lesson content.
+    setTimeout(() => {
+        postToChat('Continue', 'LESSON_FLOW');
+    }, 1500);
+}else if (data && data.type === 'game_chat_message') {
             
             // --- THIS IS THE FIX ---
             // Find the last .game-message bubble on the page, then find the iframe inside it.
