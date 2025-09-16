@@ -614,27 +614,50 @@ function addGameMessage(gameId, title) {
 
             // Send the game's message to our backend API endpoint
             fetch('/api/game-chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF_TOKEN },
-                body: JSON.stringify(data)
-            })
-            .then(res => res.json())
-            .then(apiResult => {
-                // Send the AI's response back DOWN to the game iframe
-                const responsePayload = {
-                    type: 'ai_response_for_game',
-                    payload: apiResult.response
-                };
-                gameIframe.contentWindow.postMessage(responsePayload, '*');
-            })
-            .catch(err => {
-                console.error("Error bridging game chat to backend:", err);
-                const errorPayload = {
-                    type: 'ai_response_for_game',
-                    payload: "Sorry, I'm having trouble connecting right now. Please try again."
-                };
-                gameIframe.contentWindow.postMessage(errorPayload, '*');
-            });
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF_TOKEN },
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(apiResult => {
+        // --- THIS IS THE CORRECTED LOGIC ---
+        // It explicitly checks for the new keys from our upgraded engine.
+        console.log("LESSON.JS (Bridge): Received from backend:", apiResult); // DEBUG
+
+        if (apiResult.game_config) {
+            // This is the initial setup message.
+            gameIframe.contentWindow.postMessage({
+                type: 'initialize_game',
+                config: apiResult.game_config
+            }, '*');
+        } else {
+            // This is the normal game loop for all subsequent messages.
+            if (apiResult.tutor_text) {
+                gameIframe.contentWindow.postMessage({
+                    type: 'ai_response',
+                    text: apiResult.tutor_text,
+                    mastered_concept_id: apiResult.mastered_concept_id || null
+                }, '*');
+            }
+            if (apiResult.show_media) {
+                gameIframe.contentWindow.postMessage({
+                    type: 'show_image',
+                    url: apiResult.show_media.url
+                }, '*');
+            }
+            if (apiResult.is_complete) {
+                gameIframe.contentWindow.postMessage({ type: 'game_is_complete' }, '*');
+            }
+        }
+        // --- END OF CORRECTED LOGIC ---
+    })
+    .catch(err => {
+        console.error("Error bridging game chat to backend:", err);
+        gameIframe.contentWindow.postMessage({
+            type: 'ai_response',
+            text: "Sorry, I'm having trouble connecting right now."
+        }, '*');
+    });
         }
     });
 

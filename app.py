@@ -1792,64 +1792,218 @@ def edit_game(game_id):
 
     return render_template('edit_game.html', game=game)
 # In app.py, add this new route
+def handle_socratic_game_turn(game, user_query, history):
+    """
+    The Universal Socratic Game Engine (Final Version 2.0 - Simplified Conclusion).
+    Executes a game turn based on the JSON "cartridge" in the solution_script.
+    """
+    try:
+        game_data = json.loads(game.solution_script)
+        game_mode = game_data.get("game_mode", "discovery")
+    except json.JSONDecodeError:
+        return {"tutor_text": "Error: Game configuration is invalid."}
 
-@app.route('/test-api')
-def test_api():
-    return jsonify({'status': 'ok', 'message': 'The server has been updated successfully!'})
+    if user_query == "START_GAME":
+        return {"game_config": game_data}
+
+    if game_mode == "problem_solving":
+        final_answer_data = game_data.get("final_answer", {})
+        keywords = final_answer_data.get("keywords", [])
+        check_prompt = f"Does the user's answer: '{user_query}' strongly imply one of these concepts: {keywords}? Respond with only 'true' or 'false'."
+        if 'true' in get_tutor_response(check_prompt).lower():
+            return {
+                "tutor_text": final_answer_data.get("explanation", "That's correct!"),
+                "is_complete": True
+            }
+
+    mastered_concepts = [msg.get("mastered_concept_id") for msg in history if msg.get("mastered_concept_id")]
+    
+    current_milestone = None
+    next_milestone = None
+    all_milestones = game_data.get("socratic_milestones", [])
+    for i, concept in enumerate(all_milestones):
+        if concept["concept_id"] not in mastered_concepts:
+            current_milestone = concept
+            if i + 1 < len(all_milestones):
+                next_milestone = all_milestones[i+1]
+            break
+
+    if not current_milestone:
+        # This case should ideally not be hit if logic is correct, but is a safe fallback.
+        return {
+            "tutor_text": game_data.get("completion_message", "Great job!"),
+            "is_complete": True
+        }
+
+    # --- THE NEW, SMARTER PROMPT LOGIC ---
+    # The prompt now changes based on whether this is the last step or not.
+    if next_milestone:
+        # This is a regular, intermediate step.
+        next_step_instructions = f"If the student masters the goal, your next statement should be a transition that introduces the next concept: '{next_milestone['success_criteria']}'"
+    else:
+        # This is the final milestone.
+        next_step_instructions = f"This is the FINAL concept. If the student masters the goal, your next statement MUST be the following completion message verbatim: '{game_data.get('completion_message', 'Excellent work!')}'"
+
+    history_str = "\n".join([f"{msg['sender'].capitalize()}: {msg['text']}" for msg in history])
+    
+    meta_prompt = f"""
+[TUTOR PERSONA]
+{game_data.get("tutor_persona", "You are a helpful Socratic tutor.")}
+
+[CURRENT GOAL]
+Your immediate goal is to guide the student to understand this concept: "{current_milestone['success_criteria']}"
+
+[INSTRUCTIONS FOR WHAT COMES NEXT]
+{next_step_instructions}
+
+[CONVERSATION HISTORY]
+{history_str}
+Student's latest input: "{user_query}"
+
+[YOUR TASK]
+1.  ANALYZE the student's input against the [CURRENT GOAL].
+2.  DECIDE if they have mastered the concept.
+3.  RESPOND with a single, valid JSON object with this structure:
+    {{
+      "analysis_of_student_understanding": "<Your brief analysis>",
+      "next_socratic_question_or_statement": "<Your conversational response to the student. If they mastered the goal, this should follow the [INSTRUCTIONS FOR WHAT COMES NEXT]>",
+      "mastered_concept_id": "<The ID '{current_milestone['concept_id']}' IF they mastered the goal, otherwise null>",
+      "is_final_goal_reached": <true ONLY if they have mastered the FINAL concept, otherwise false>
+    }}
+"""
+    
+    llm_json_response = get_tutor_response(meta_prompt)
+    
+    try:
+        llm_data = json.loads(llm_json_response.strip().replace("```json", "").replace("```", "").strip())
+        
+        response_for_frontend = {
+            "tutor_text": llm_data.get("next_socratic_question_or_statement"),
+            "is_complete": llm_data.get("is_final_goal_reached", False)
+        }
+        
+        mastered_id = llm_data.get("mastered_concept_id")
+        if mastered_id:
+            response_for_frontend["mastered_concept_id"] = mastered_id
+            media_url = game_data.get("media_assets", {}).get(mastered_id)
+            if media_url:
+                response_for_frontend["show_media"] = {"url": media_url}
+
+        return response_for_frontend
+
+    except (json.JSONDecodeError, KeyError):
+        return {"tutor_text": llm_json_response}
+# In app.py, add this new "engine" function somewhere above your routes.
 
 # In app.py
-# REPLACE your current game_chat function with this one.
 
+def handle_socratic_game_turn(game, user_query, history):
+    """
+    The Universal Socratic Game Engine.
+    Executes a game turn based on the JSON "cartridge" in the solution_script.
+    """
+    try:
+        game_data = json.loads(game.solution_script)
+        game_mode = game_data.get("game_mode", "discovery") # Default to discovery
+    except json.JSONDecodeError:
+        return {"tutor_text": "Error: Game configuration is invalid. The solution script is not valid JSON."}
+
+    # --- THIS IS THE FIX ---
+    # The START_GAME command now returns a unique key, not 'tutor_text'.
+    if user_query == "START_GAME":
+        return {"game_config": game_data}
+    # --- END OF FIX ---
+
+    # --- MODE-SPECIFIC LOGIC: "problem_solving" ---
+    if game_mode == "problem_solving":
+        final_answer_data = game_data.get("final_answer", {})
+        keywords = final_answer_data.get("keywords", [])
+        
+        check_prompt = f"Does the user's answer: '{user_query}' strongly imply one of these concepts: {keywords}? Respond with only 'true' or 'false'."
+        is_correct_str = get_tutor_response(check_prompt)
+        
+        if 'true' in is_correct_str.lower():
+            return {
+                "tutor_text": final_answer_data.get("explanation", "That's correct!"),
+                "is_complete": True
+            }
+
+    # --- UNIVERSAL LOGIC: SOCRATIC MILESTONE GUIDING ---
+    mastered_concepts = [msg.get("mastered_concept_id") for msg in history if msg.get("mastered_concept_id")]
+    
+    next_milestone = None
+    for concept in game_data.get("socratic_milestones", []):
+        if concept["concept_id"] not in mastered_concepts:
+            next_milestone = concept
+            break
+
+    if not next_milestone:
+        return {
+            "tutor_text": game_data.get("completion_message", "Great job! You've completed the challenge."),
+            "is_complete": True
+        }
+
+    history_str = "\n".join([f"{msg['sender'].capitalize()}: {msg['text']}" for msg in history])
+    
+    meta_prompt = f"""
+[TUTOR PERSONA]
+{game_data.get("tutor_persona", "You are a helpful Socratic tutor.")}
+
+[CURRENT GOAL]
+Your immediate goal is to guide the student to understand this concept: "{next_milestone['success_criteria']}"
+
+[CONVERSATION HISTORY]
+{history_str}
+Student's latest input: "{user_query}"
+
+[YOUR TASK]
+1.  ANALYZE: Analyze the student's input against the [CURRENT GOAL].
+2.  DECIDE: Have they demonstrated understanding of the goal?
+3.  RESPOND: Your entire output MUST be a single, valid JSON object with this structure:
+    {{
+      "analysis_of_student_understanding": "<Your brief analysis of their mental model>",
+      "next_socratic_question_or_statement": "<Your next conversational response to the student>",
+      "mastered_concept_id": "<The ID '{next_milestone['concept_id']}' IF they mastered the goal, otherwise null>"
+    }}
+"""
+    
+    llm_json_response = get_tutor_response(meta_prompt)
+    
+    try:
+        llm_data = json.loads(llm_json_response.strip().replace("```json", "").replace("```", "").strip())
+        
+        response_for_frontend = {
+            "tutor_text": llm_data.get("next_socratic_question_or_statement"),
+            "is_complete": False
+        }
+        
+        mastered_id = llm_data.get("mastered_concept_id")
+        if mastered_id:
+            response_for_frontend["mastered_concept_id"] = mastered_id
+            media_url = game_data.get("media_assets", {}).get(mastered_id)
+            if media_url:
+                response_for_frontend["show_media"] = {"url": media_url}
+
+        return response_for_frontend
+
+    except (json.JSONDecodeError, KeyError):
+        return {"tutor_text": llm_json_response}
+
+# Replace your old /api/game-chat route with this one
 @app.route('/api/game-chat', methods=['POST'])
 @login_required
 def game_chat():
-    print("--- SERVER: /api/game-chat route was successfully reached! ---")
-    
     data = request.json
     game_id = data.get('gameId')
-    user_query = data.get('userQuery')
-    history = data.get('history', [])
-
-    # --- FIX #1: Use .get() instead of .get_or_404() for better error handling ---
     game = InteractiveGame.query.get(game_id)
-
-    # --- FIX #2: Add a manual check to see if the game was found ---
-    if not game:
-        print(f"--- SERVER ERROR: Game with ID '{game_id}' was not found in the database. ---")
-        # Return a more helpful JSON error instead of a generic 404 HTML page
-        return jsonify({'response': "Error: The game session could not be found on the server."}), 404
-
-    print(f"--- SERVER: Successfully found game '{game.title}' in the database. ---")
-
-    solution_script = game.solution_script
-
-    if not solution_script:
-        return jsonify({'response': "I don't have a solution script for this problem."})
-
-    # Construct a detailed prompt for the AI
-    history_str = "\n".join([f"{msg['sender'].capitalize()}: {msg['text']}" for msg in history])
     
-    prompt = f"""You are an expert Socratic tutor for advanced physics problems.
+    if not game or not game.solution_script:
+        return jsonify({'tutor_text': "Error: Game data or solution script not found on the server."}), 404
 
-[GROUND TRUTH AND CORRECT SOLUTION]
----
-{solution_script}
----
-
-[CURRENT CONVERSATION HISTORY]
----
-{history_str}
----
-
-The student's latest input is: "{user_query}"
-
-Your task is to analyze the student's input against the ground truth and the conversation history. Guide them step-by-step towards the correct solution using the Socratic method. Do NOT give away the final answer unless they have clearly demonstrated understanding of all prior steps. Your response should be conversational and encouraging.
-"""
-
-    # Use your existing helper function to call the Gemini API
-    ai_response = get_tutor_response(prompt) 
-
-    return jsonify({'response': ai_response})
+    # The magic is now inside the handler function
+    result = handle_socratic_game_turn(game, data.get('userQuery'), data.get('history', []))
+    
+    return jsonify(result)
 
 @app.route('/creator/game/delete/<string:game_id>', methods=['POST'])
 @login_required
