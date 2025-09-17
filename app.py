@@ -50,7 +50,7 @@ def add_header(response):
         # Instruct the browser to cache all other pages and static assets for one week.
         response.headers['Cache-Control'] = 'public, max-age=604800'
     return response
-    return response
+    
 
 # --- Cloudinary Configuration ---
 cloudinary.config(

@@ -108,7 +108,7 @@ nav.ks-nav {
 /*-- 3. Buttons & Forms --*/
 .btn, .cta-button, main.codex-main button, main.codex-main button[type="submit"], main.codex-main .btn {
     display: inline-block;
-    background-color: var(--brand-blue) !important;
+    background-color: #403e3e !important;
     color: #fff !important;
     padding: 12px 24px !important;
     border: none !important;
@@ -125,14 +125,14 @@ nav.ks-nav {
 }
 
 .btn:hover, .cta-button:hover, main.codex-main button:hover, main.codex-main button[type="submit"]:hover, main.codex-main .btn:hover {
-    background-color: var(--brand-blue-dark) !important;
+    background-color: #FFFFFF; !important;
     transform: translateY(-2px) !important;
     box-shadow: var(--shadow-lg) !important;
 }
 
 .btn-secondary {
     background: #EBF0F3 !important;
-    color: var(--brand-blue-dark) !important;
+    color: #FFFFFF; !important;
 }
 .btn-secondary:hover {
     background: #dde4e8 !important;
@@ -299,7 +299,7 @@ body.dark-mode .ks-nav .nav-link:hover, body.dark-mode .logout-button-as-link:ho
 }
 
 body.dark-mode .ks-nav .nav-link.active {
-    background-color: #4a5568;
+    background-color:  black;
     color: white !important;
 }
 
@@ -339,21 +339,21 @@ body.dark-mode input[type="password"],
 body.dark-mode textarea,
 body.dark-mode input[type="search"],
 body.dark-mode select {
-    background-color: #2d3748;
-    border-color: #4a5568;
-    color: #e2e8f0;
+    background-color: #FFFFFF;
+    border-color: grey;
+    color: black;
 }
 
 body.dark-mode input::placeholder,
 body.dark-mode textarea::placeholder {
-    color: #a0aec0;
+    color: black;
     opacity: 1;
 }
 
 body.dark-mode input:focus, body.dark-mode textarea:focus, body.dark-mode select:focus {
     outline-color: #63b3ed;
     border-color: #63b3ed;
-    background-color: #1E1E1E;
+    background-color: #FFFFFF;
 }
 
 body.dark-mode .alert-success { background-color: #1c3d2a; border-color: #277c4a; color: #a7f3d0; }
@@ -368,22 +368,22 @@ body.dark-mode #qna-input { background-color: #2d3748; border-color: #4a5568; co
 body.dark-mode .tutor-message { background-color: #2d3748; border-color: #4a5568; }
 
 body.dark-mode .btn, body.dark-mode .cta-button, body.dark-mode main.codex-main button, body.dark-mode main.codex-main button[type="submit"], body.dark-mode main.codex-main .btn {
-    background-color: #4a5568 !important;
+    background-color: #FFFFFF; !important;
     color: #f7fafc !important;
     border: 1px solid #637081 !important;
 }
 body.dark-mode .btn:hover, body.dark-mode .cta-button:hover, body.dark-mode main.codex-main button:hover, body.dark-mode main.codex-main button[type="submit"]:hover, body.dark-mode main.codex-main .btn:hover {
-    background-color: #637081 !important;
+    background-color: #FFFFFF; !important;
     border-color: #7a889c !important;
 }
 
 body.dark-mode .btn-secondary {
-    background: #2d3748 !important;
+    background: #FFFFFF;!important;
     color: #cbd5e0 !important;
     border: 1px solid #4a5568 !important;
 }
 body.dark-mode .btn-secondary:hover {
-    background: #4a5568 !important;
+    background: #FFFFFF;!important;
     color: #f7fafc !important;
 }
 
@@ -445,7 +445,7 @@ body.dark-mode .user-card-enrollments h6 {
 }
 
 body.dark-mode .user-dropdown-menu {
-    background-color: #2d3748;
+    background-color: black;
     border: 1px solid #4a5568;
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }

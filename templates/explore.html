@@ -18,35 +18,60 @@
         box-shadow: none !important;
     }
 
-    .hero-section, .welcome-banner {
-        background-color: var(--bg-light);
-        padding: 4rem 2rem;
-        max-width: 1200px;
-        margin: 2rem auto;
-        border-radius: var(--border-radius);
-        text-align: center;
-    }
+   .hero-section,
+.welcome-banner {
+    background: linear-gradient(135deg, #14532D, #4ADE80); /* deep → light green */
+    padding: 4rem 2rem;
+    max-width: 1200px;
+    margin: 2rem auto;
+    border-radius: var(--border-radius);
+    text-align: center;
+    color: #FFFFFF; /* default text color */
+}
 
-    .hero-content h2, .welcome-banner h2 {
-        font-size: 2.8rem;
-        font-weight: 700;
-        margin-top: 0;
-        margin-bottom: 1rem;
-        line-height: 1.2;
-    }
+/* Headings inside hero */
+.hero-content h2,
+.welcome-banner h2 {
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+    color: #FFFFFF; /* strong contrast */
+}
 
-    .hero-content p, .welcome-banner p {
-        font-size: 1.1rem;
-        color: var(--text-light);
-        margin-bottom: 2rem;
-    }
-    
-    .cta-container {
-        display: flex;
-        justify-content: center;
-        gap: 1rem;
-        flex-wrap: wrap;
-    }
+/* Subtext inside hero */
+.hero-content p,
+.welcome-banner p {
+    font-size: 1.1rem;
+    color: #F9FAFB; /* softer white for balance */
+    margin-bottom: 2rem;
+}
+
+/* CTA container remains the same */
+.cta-container {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* CTA button styles */
+.cta-container .btn {
+    background: #FFFFFF;
+    color: #166534; /* green text */
+    border: 2px solid #166534;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.cta-container .btn:hover {
+    background: #166534;
+    color: #FFFFFF;
+}
+
 
     .guidelet-section { padding: 3rem 0; }
     .section-container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
