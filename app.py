@@ -1909,7 +1909,8 @@ def handle_socratic_game_turn(game, user_query, history):
         return {"tutor_text": "Error: Game configuration is invalid."}
 
     if user_query == "START_GAME":
-        return {"tutor_text": game_data.get("initial_prompt") or game_data.get("problem_statement")}
+    # The fix is to wrap the game_data in the 'game_config' key that lesson.js expects.
+    return {"game_config": game_data}
 
     if game_mode == "problem_solving":
         final_answer_data = game_data.get("final_answer", {})
