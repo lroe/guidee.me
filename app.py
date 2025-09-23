@@ -1910,7 +1910,7 @@ def handle_socratic_game_turn(game, user_query, history):
 
     if user_query == "START_GAME":
     # The fix is to wrap the game_data in the 'game_config' key that lesson.js expects.
-    return {"game_config": game_data}
+        return {"game_config": game_data}
 
     if game_mode == "problem_solving":
         final_answer_data = game_data.get("final_answer", {})
