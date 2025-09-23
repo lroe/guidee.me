@@ -1899,36 +1899,46 @@ Student's latest input: "{user_query}"
 
 def handle_socratic_game_turn(game, user_query, history):
     """
-    The Universal Socratic Game Engine.
+    The Universal Socratic Game Engine (v2 - with Smart Check).
     Executes a game turn based on the JSON "cartridge" in the solution_script.
     """
     try:
         game_data = json.loads(game.solution_script)
-        game_mode = game_data.get("game_mode", "discovery") # Default to discovery
+        game_mode = game_data.get("game_mode", "discovery")
     except json.JSONDecodeError:
-        return {"tutor_text": "Error: Game configuration is invalid. The solution script is not valid JSON."}
+        return {"tutor_text": "Error: Game configuration is invalid."}
 
-    # --- THIS IS THE FIX ---
-    # The START_GAME command now returns a unique key, not 'tutor_text'.
     if user_query == "START_GAME":
-        return {"game_config": game_data}
-    # --- END OF FIX ---
+        return {"tutor_text": game_data.get("initial_prompt") or game_data.get("problem_statement")}
 
-    # --- MODE-SPECIFIC LOGIC: "problem_solving" ---
     if game_mode == "problem_solving":
         final_answer_data = game_data.get("final_answer", {})
-        keywords = final_answer_data.get("keywords", [])
+        ground_truth = final_answer_data.get("ground_truth")
         
-        check_prompt = f"Does the user's answer: '{user_query}' strongly imply one of these concepts: {keywords}? Respond with only 'true' or 'false'."
-        is_correct_str = get_tutor_response(check_prompt)
-        
-        if 'true' in is_correct_str.lower():
-            return {
-                "tutor_text": final_answer_data.get("explanation", "That's correct!"),
-                "is_complete": True
-            }
+        if ground_truth:
+            # --- THIS IS THE NEW "SMART CHECK" PROMPT ---
+            check_prompt = f"""
+            You are an AI numerical evaluator for a physics quiz. Your task is to determine if the student's answer is numerically correct.
 
-    # --- UNIVERSAL LOGIC: SOCRATIC MILESTONE GUIDING ---
+            Here is the ground truth for the correct answer:
+            {json.dumps(ground_truth)}
+
+            Here is the student's answer:
+            "{user_query}"
+
+            Analyze the student's answer. They may use different units (e.g., 1000pC is the same as 1nC) and phrase their answer in any way. Check if the numerical values they provided for both Case A and Case B match the ground truth.
+
+            Respond with only the single word 'true' if their answer is numerically correct, or 'false' otherwise.
+            """
+            is_correct_str = get_tutor_response(check_prompt)
+            
+            if 'true' in is_correct_str.lower():
+                return {
+                    "tutor_text": final_answer_data.get("explanation", "That's correct!"),
+                    "is_complete": True
+                }
+
+    # --- SOCRATIC GUIDING REMAINS THE SAME ---
     mastered_concepts = [msg.get("mastered_concept_id") for msg in history if msg.get("mastered_concept_id")]
     
     next_milestone = None
@@ -1957,12 +1967,12 @@ Your immediate goal is to guide the student to understand this concept: "{next_m
 Student's latest input: "{user_query}"
 
 [YOUR TASK]
-1.  ANALYZE: Analyze the student's input against the [CURRENT GOAL].
-2.  DECIDE: Have they demonstrated understanding of the goal?
-3.  RESPOND: Your entire output MUST be a single, valid JSON object with this structure:
+1.  ANALYZE the student's input against the [CURRENT GOAL].
+2.  DECIDE if they have demonstrated understanding.
+3.  RESPOND with a single, valid JSON object with this structure:
     {{
-      "analysis_of_student_understanding": "<Your brief analysis of their mental model>",
-      "next_socratic_question_or_statement": "<Your next conversational response to the student>",
+      "analysis_of_student_understanding": "<Your brief analysis>",
+      "next_socratic_question_or_statement": "<Your conversational response>",
       "mastered_concept_id": "<The ID '{next_milestone['concept_id']}' IF they mastered the goal, otherwise null>"
     }}
 """
@@ -1980,12 +1990,8 @@ Student's latest input: "{user_query}"
         mastered_id = llm_data.get("mastered_concept_id")
         if mastered_id:
             response_for_frontend["mastered_concept_id"] = mastered_id
-            media_url = game_data.get("media_assets", {}).get(mastered_id)
-            if media_url:
-                response_for_frontend["show_media"] = {"url": media_url}
 
         return response_for_frontend
-
     except (json.JSONDecodeError, KeyError):
         return {"tutor_text": llm_json_response}
 
