@@ -43,27 +43,51 @@
         body.dark-mode #theme-toggle:hover {
             background-color: #2d3748;
         }
-        /* --- Responsive Design --- */
-        /*
+
+        /* --- NEW: Mobile Notice Banner Styles --- */
+        #mobile-notice {
+            display: none; /* Hidden by default and on desktop */
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--brand-blue-dark);
+            color: white;
+            padding: 1rem;
+            z-index: 1001; /* Ensure it's above other content but below modals */
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            font-size: 0.9rem;
+            text-align: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+        }
+
+        body.dark-mode #mobile-notice {
+            background-color: #2d3748;
+            border-top: 1px solid #4a5568;
+        }
+
+        #close-mobile-notice-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0 0.5rem;
+        }
+
+        /* This media query makes the banner visible on mobile screens */
         @media (max-width: 768px) {
-            .ks-header {
-                flex-direction: column;
-                align-items: flex-start;
-                padding: 1rem;
+            #mobile-notice.show-notice { /* Only show if class is present */
+                display: flex;
             }
-            .ks-nav {
-                flex-direction: column;
-                width: 100%;
-                margin-top: 1rem;
+            main.codex-main {
+                /* Add padding to the bottom so the banner doesn't cover content */
+                padding-bottom: 80px !important;
             }
-            .ks-nav a, .ks-nav .user-dropdown {
-                margin-bottom: 0.5rem;
-                width: 100%;
-            }
-            .user-dropdown-menu {
-                position: static; 
-            }
-        }*/
+        }
     </style>
     {% block styles %}{% endblock %}
 </head>
@@ -72,7 +96,7 @@
     <header class="ks-header">
         <a href="{{ url_for('explore') }}" class="ks-logo-container">
             <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Guidee Logo">
-            <h1>Guidee <sup>beta</sup></h1>
+            <h1>Guidee</h1>
         </a>
         <nav class="ks-nav">
             <a href="{{ url_for('explore') }}" class="nav-link {{ 'active' if request.endpoint in ['explore', 'guidelet_detail_page'] else '' }}">Library</a>
@@ -140,6 +164,12 @@
         
         {% block content %}{% endblock %}
     </main>
+
+    <!-- NEW: Mobile-only notification banner -->
+    <div id="mobile-notice">
+        <span>For the best experience, especially in the Creator Studio, we recommend using a desktop browser.</span>
+        <button id="close-mobile-notice-btn" title="Dismiss">×</button>
+    </div>
 
     <footer class="ks-footer">
         <p>© 2025 Guidee. All Rights Reserved.</p>
@@ -215,6 +245,27 @@
                 .catch(err => console.error('Failed to save theme:', err));
                 {% endif %}
             });
+
+            // --- NEW: Mobile Notice Logic ---
+            const mobileNotice = document.getElementById('mobile-notice');
+            const closeMobileNoticeBtn = document.getElementById('close-mobile-notice-btn');
+
+            // Check if it's a mobile screen and if the notice has NOT been dismissed before
+            if (window.innerWidth <= 768 && localStorage.getItem('mobileNoticeDismissed') !== 'true') {
+                if (mobileNotice) {
+                    mobileNotice.classList.add('show-notice');
+                }
+            }
+
+            if (closeMobileNoticeBtn) {
+                closeMobileNoticeBtn.addEventListener('click', function() {
+                    if (mobileNotice) {
+                        mobileNotice.style.display = 'none';
+                    }
+                    // Save the dismissed state in localStorage so it doesn't show again
+                    localStorage.setItem('mobileNoticeDismissed', 'true');
+                });
+            }
         });
     </script>
     {% endblock %}
