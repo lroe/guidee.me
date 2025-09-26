@@ -535,7 +535,7 @@ def _parse_and_save_lesson(lesson):
 
         # 2. AI PARSING: Send the text (with question tags intact) to the AI for structuring.
         print(f"Sending text with question tags to AI for structuring...")
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.0-flash')
         response = model.generate_content(PARSER_PROMPT + text_for_ai)
         cleaned_response = response.text.strip().replace("```json", "").replace("```", "").strip()
         ai_parsed_data = json.loads(cleaned_response)
@@ -594,7 +594,7 @@ def _parse_and_save_lesson(lesson):
 
                 Topics: {json.dumps(outline_stages)}
                 """
-                model = genai.GenerativeModel('gemini-1.5-flash')
+                model = genai.GenerativeModel('gemini-2.0-flash')
                 response = model.generate_content(icon_prompt)
                 cleaned_response = response.text.strip().replace("```json", "").replace("```", "").strip()
                 icon_map = json.loads(cleaned_response)
