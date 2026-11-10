@@ -152,9 +152,3 @@ docs/screenshots/      Product screenshots used in this README
 requirements.txt       Python dependencies
 ```
 
-## Contact
-
-- Email: [jeevan@guidee.me](mailto:jeevan@guidee.me)
-- Repository: [github.com/lroe/ultron](https://github.com/lroe/ultron)
-
-> **Ultron** is the internal codename for the Guidee platform.
