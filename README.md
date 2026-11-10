@@ -6,7 +6,7 @@
 
 Guidee turns notes, diagrams, quizzes, audio, video, and interactive games into **guidelets** — interactive textbooks taught by an agentic AI tutor. The creator owns the course structure; the AI brings it to life, one step at a time.
 
-Live at **[guidee.me](https://guidee.me)**
+> **Status:** The hosted version at `guidee.me` is currently offline. You can run the project locally with the setup instructions below.
 
 ---
 
@@ -154,7 +154,6 @@ requirements.txt       Python dependencies
 
 ## Contact
 
-- Website: [guidee.me](https://guidee.me)
 - Email: [jeevan@guidee.me](mailto:jeevan@guidee.me)
 - Repository: [github.com/lroe/ultron](https://github.com/lroe/ultron)
 
